@@ -17,7 +17,7 @@
 </form>
 
 <div #area class="menu-area" (contextmenu)="contextMenu($event)" (click)="OnClick($event)">
-  <canvas #canvas id="canvas" width="1000" height="600"></canvas>
+  <canvas #canvas width="1000" height="600"></canvas>
     <div class="customContext" (click)="stopPropagation($event)" #menu>
       <ul>
         <li #Option1 (click)="EditAnnotationsMode()">Edit Mode</li>
@@ -25,8 +25,11 @@
         <!-- <li #Option3 (click)="CVFunction()">OpenCV Function</li> -->
         <!-- <li #Option4 (click)="FreeDrawLine()">Free Draw</li> -->
         <!-- <li #Option5 (click)="Text()">Text</li> -->
-        <li #Option6 (click)="DrawPolyline()">Polyline</li>
-        <!-- <li #Option7 (click)="DrawPolygon()">Polygon</li> -->
+        <!-- <li #Option6 (click)="DrawPolyline()">Polyline</li> -->
+
+        <li #Option6 (click)="DrawPoint()">Point</li>
+
+        <li #Option7 (click)="DrawPolygon()">Polygon</li>
         <li #Option8 (click)="DrawRectangle()">Rectangle</li>
         <li (click)="SaveMetadata()">Save Metadata</li>
         <li (click)="ClearAnnotations()">Clear All</li>

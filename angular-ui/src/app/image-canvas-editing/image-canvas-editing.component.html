@@ -1,0 +1,37 @@
+<form #cvInput class="openCVContext">
+  <label class="cvBoxText" for="fname">OpenCV Function:</label>
+  <select #FunctionTextToCV name="cvFunction" id="cvFunction">
+    <option value="GrayImage">Gray Image</option>
+    <option value="ImageThresholding">Image Thresholding</option>
+    <option value="TextDetection">Text Detection</option>
+  </select>
+  <label class="cvBoxText" for="fname">Function Parameters:</label>
+  <textarea #TextToCV class="cvBoxTextArea" name="TextArea" cols="25" rows="5"></textarea>
+  <input type="button" value="Send" (click)="OpenCVCall()">
+</form>
+
+<form #MetaData class="MetaDataContext">
+  <label class="MetaBoxText" for="fname">MetaData Editor:</label>
+  <textarea #MetaDataText class="MetaDataTextArea" name="TextArea" cols="25" rows="5"></textarea>
+  <input type="button" value="Send" (click)="SendMetaData()">
+</form>
+
+<div #area class="menu-area" (contextmenu)="contextMenu($event)" (click)="OnClick($event)">
+  <canvas #canvas width="1000" height="600"></canvas>
+    <div class="customContext" (click)="stopPropagation($event)" #menu>
+      <ul>
+        <li #Option1 (click)="EditAnnotationsMode()">Edit Mode</li>
+        <li #Option2 (click)="CallMetaData()">Edit Metadata</li>
+        <!-- <li #Option3 (click)="CVFunction()">OpenCV Function</li> -->
+        <li #Option4 (click)="FreeDrawLine()">Free Draw</li>
+        <!-- <li #Option5 (click)="Text()">Text</li> -->
+        <!-- <li #Option6 (click)="DrawPolyline()">Polyline</li> -->
+        <!-- <li #Option7 (click)="DrawPolygon()">Polygon</li> -->
+        <li #Option8 (click)="DrawRectangle()">Rectangle</li>
+        <li (click)="SaveMetadata()">Save Metadata</li>
+        <li (click)="ClearAnnotations()">Clear All</li>
+      </ul>
+    </div>
+</div>
+
+<input #textInput type="text" class="textInputPosition" (keyup.enter)="OnEnter($event)"/>

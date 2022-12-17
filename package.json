@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@angular/core": "^14.0.0",
+    "@angular/platform-browser-dynamic": "^14.0.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^14.0.0"
+  }
+}

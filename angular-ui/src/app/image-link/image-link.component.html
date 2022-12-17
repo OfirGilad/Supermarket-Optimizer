@@ -1,0 +1,11 @@
+<h2>{{ image?.name }}</h2>
+<img 
+    src="{{ image?.imagePath }}"
+    class="img-responsive"
+    (click)="openCanvas(image?.imagePath, image?.metadata)"
+/>
+
+<!-- Sample Images Links -->
+<!-- https://nanonets.com/blog/content/images/2019/08/image-16.png -->
+<!-- https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Birmingham_Quran_manuscript.jpg/1280px-Birmingham_Quran_manuscript.jpg -->
+<!-- https://thumbs.dreamstime.com/b/ancient-hebrew-text-15966859.jpg -->

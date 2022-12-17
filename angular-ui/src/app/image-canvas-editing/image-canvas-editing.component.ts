@@ -3,6 +3,7 @@ import { fromEvent, pairwise, switchMap, takeUntil } from 'rxjs';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { OpenCVService } from '../opencv.service';
 import { MetadataService } from '../metadata.service';
+import { fabric } from 'fabric';
 
 @Component({
   selector: 'app-image-canvas-editing',
@@ -31,7 +32,11 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   @ViewChild('area') menuArea;
 
+  fabric_canvas: any;
+
   ngOnInit(): void {
+    this.fabric_canvas = new fabric.Canvas('canvas')
+    
     // Clean Canvas
     this.ctx = this.canvas.nativeElement.getContext('2d');
     this.image.src = "";
@@ -60,7 +65,6 @@ export class ImageCanvasEditingComponent implements OnInit {
         this.SendMetaData();
       }
     })
-    
   }
 
   @ViewChild('cvInput') cvInput;
@@ -265,6 +269,23 @@ export class ImageCanvasEditingComponent implements OnInit {
         this.drawLine(this.rec_x1,this.rec_y1,this.rec_x1,this.rec_y2);
         this.drawLine(this.rec_x1,this.rec_y2,this.rec_x2,this.rec_y2);
         this.drawLine(this.rec_x2,this.rec_y1,this.rec_x2,this.rec_y2);
+        
+        // Working in progress
+        var rect = new fabric.Rect({
+          left: this.rec_x1,
+          top: this.rec_y1,
+          fill: 'yellow',
+          width: this.rec_x2 - this.rec_x1,
+          height: this.rec_y2 - this.rec_y1,
+          objectCaching: false,
+          stroke: 'lightgreen',
+          strokeWidth: 4,
+        });
+        // Working in progress
+
+        //this.fabric_canvas.viewportTransform = [0.7, 0, 0, 0.7, -50, 50];
+        this.fabric_canvas.add(rect);
+
         // console.log(this.MetajsonTxt)
         // add to metadata
         var json = JSON.parse(this.MetajsonTxt);

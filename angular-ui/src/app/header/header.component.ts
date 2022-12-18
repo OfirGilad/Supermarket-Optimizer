@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
-  siteName = 'Image Canvas Editor'
+  siteName = 'Supermarket Optimizer'
   userName = 'Eitan'
 
   constructor() { }

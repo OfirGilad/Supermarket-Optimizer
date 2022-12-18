@@ -77,33 +77,38 @@ export class ImageCanvasEditingComponent implements OnInit {
   
 
   // For Text
-  pos1: number = 0;
-  pos2: number = 0;
+  text_x: number = 0;
+  text_y: number = 0;
+
+  
+  // For Point
+  point_x: number = 0;
+  point_y: number = 0;
 
 
   // For Polyline
-  x1: number = 0;
-  y1: number = 0;
-  x2: number = 0;
-  y2: number = 0;
+  polyline_x1: number = 0;
+  polyline_y1: number = 0;
+  polyline_x2: number = 0;
+  polyline_y2: number = 0;
   onFirstSelectLine: boolean = true;
   selectedPointsPolylineList: number[] = [];
 
 
   // For Polygon
-  firstX: number = 0;
-  firstY: number = 0;
-  lastX: number = 0;
-  lastY: number = 0;
+  polygon_x1: number = 0;
+  polygon_y1: number = 0;
+  polygon_x2: number = 0;
+  polygon_y2: number = 0;
   onFirstSelectGon: boolean = true;
   selectedPointsPolygonList: number[] = [];
   
 
   // For Rectangle
-  rec_x1: number = 0;
-  rec_y1: number = 0;
-  rec_x2: number = 0;
-  rec_y2: number = 0;
+  rectangle_x1: number = 0;
+  rectangle_y1: number = 0;
+  rectangle_x2: number = 0;
+  rectangle_y2: number = 0;
   onFirstSelectRec: boolean = true;
   
 
@@ -205,16 +210,25 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.textInput.nativeElement.style.display = "block";
       this.textInput.nativeElement.style.top = e.pageY + "px";
       this.textInput.nativeElement.style.left = e.pageX + "px";
-      this.pos1 = e.clientX
-      this.pos2 = e.clientY
+      this.text_x = e.clientX
+      this.text_y = e.clientY
     }
     else if (this.CurrentClicked == "Point"){
       this.disableOtherOptions()
       this.CurrentClicked = "Point";
 
-      this.pos1 = e.clientX - rect.left
-      this.pos2 = e.clientY - rect.top
-      this.color_point(this.pos1, this.pos2, 'black')
+      this.point_x = e.clientX - rect.left
+      this.point_y = e.clientY - rect.top
+      this.color_point(this.point_x, this.point_y, 'black', 10)
+
+      var json = JSON.parse(this.MetajsonTxt);
+        var line = json.Points;
+        if (line == undefined)
+          json.Points = [[this.point_x, this.point_y]]
+        else
+          json.Points.push([this.point_x, this.point_y])
+        this.MetajsonTxt = JSON.stringify(json);
+        this.MetaDataText.nativeElement.value = this.MetajsonTxt;
     }
     else if (this.CurrentClicked == "Polyline"){
       this.DisableEditMode()
@@ -222,21 +236,21 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.CurrentClicked = "Polyline";
 
       if (this.onFirstSelectLine){
-        this.x1 = e.clientX - rect.left
-        this.y1 = e.clientY - rect.top
+        this.polyline_x1 = e.clientX - rect.left
+        this.polyline_y1 = e.clientY - rect.top
         this.onFirstSelectLine = false
 
-        this.selectedPointsPolylineList.push(this.x1)
-        this.selectedPointsPolylineList.push(this.y1)
+        this.selectedPointsPolylineList.push(this.polyline_x1)
+        this.selectedPointsPolylineList.push(this.polyline_y1)
       }
       else{
-        this.x2 = e.clientX - rect.left
-        this.y2 = e.clientY - rect.top
-        this.selectedPointsPolylineList.push(this.x2)
-        this.selectedPointsPolylineList.push(this.y2)
-        this.drawLine(this.x1, this.y1, this.x2, this.y2)
-        this.x1 = this.x2
-        this.y1 = this.y2
+        this.polyline_x2 = e.clientX - rect.left
+        this.polyline_y2 = e.clientY - rect.top
+        this.selectedPointsPolylineList.push(this.polyline_x2)
+        this.selectedPointsPolylineList.push(this.polyline_y2)
+        this.drawLine(this.polyline_x1, this.polyline_y1, this.polyline_x2, this.polyline_y2)
+        this.polyline_x1 = this.polyline_x2
+        this.polyline_y1 = this.polyline_y2
       }
     }
     else if (this.CurrentClicked == "Polygon"){
@@ -244,21 +258,21 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.CurrentClicked = "Polygon";
 
       if (this.onFirstSelectGon){
-        this.firstX = e.clientX - rect.left
-        this.firstY = e.clientY - rect.top
+        this.polygon_x1 = e.clientX - rect.left
+        this.polygon_y1 = e.clientY - rect.top
         this.onFirstSelectGon = false
 
-        this.selectedPointsPolygonList.push(this.firstX)
-        this.selectedPointsPolygonList.push(this.firstY)
+        this.selectedPointsPolygonList.push(this.polygon_x1)
+        this.selectedPointsPolygonList.push(this.polygon_y1)
       }
       else{
-        this.lastX = e.clientX - rect.left
-        this.lastY = e.clientY - rect.top
-        this.selectedPointsPolygonList.push(this.lastX)
-        this.selectedPointsPolygonList.push(this.lastY)
-        this.drawLine(this.firstX, this.firstY, this.lastX, this.lastY)
-        this.firstX = this.lastX
-        this.firstY = this.lastY
+        this.polygon_x2 = e.clientX - rect.left
+        this.polygon_y2 = e.clientY - rect.top
+        this.selectedPointsPolygonList.push(this.polygon_x2)
+        this.selectedPointsPolygonList.push(this.polygon_y2)
+        this.drawLine(this.polygon_x1, this.polygon_y1, this.polygon_x2, this.polygon_y2)
+        this.polygon_x1 = this.polygon_x2
+        this.polygon_y1 = this.polygon_y2
       }
     }
     else if (this.CurrentClicked == "Rectangle"){
@@ -266,24 +280,24 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.CurrentClicked = "Rectangle";
 
       if (this.onFirstSelectRec){
-        this.rec_x1 = e.clientX - rect.left
-        this.rec_y1 = e.clientY - rect.top
+        this.rectangle_x1 = e.clientX - rect.left
+        this.rectangle_y1 = e.clientY - rect.top
         this.onFirstSelectRec = false;
       } else {
-        this.rec_x2 = e.clientX - rect.left
-        this.rec_y2 = e.clientY - rect.top
-        this.drawLine(this.rec_x1,this.rec_y1,this.rec_x2,this.rec_y1);
-        this.drawLine(this.rec_x1,this.rec_y1,this.rec_x1,this.rec_y2);
-        this.drawLine(this.rec_x1,this.rec_y2,this.rec_x2,this.rec_y2);
-        this.drawLine(this.rec_x2,this.rec_y1,this.rec_x2,this.rec_y2);
+        this.rectangle_x2 = e.clientX - rect.left
+        this.rectangle_y2 = e.clientY - rect.top
+        this.drawLine(this.rectangle_x1,this.rectangle_y1,this.rectangle_x2,this.rectangle_y1);
+        this.drawLine(this.rectangle_x1,this.rectangle_y1,this.rectangle_x1,this.rectangle_y2);
+        this.drawLine(this.rectangle_x1,this.rectangle_y2,this.rectangle_x2,this.rectangle_y2);
+        this.drawLine(this.rectangle_x2,this.rectangle_y1,this.rectangle_x2,this.rectangle_y2);
         // console.log(this.MetajsonTxt)
         // add to metadata
         var json = JSON.parse(this.MetajsonTxt);
         var line = json.Rectangles;
         if (line == undefined)
-          json.Rectangles = [[[this.rec_x1, this.rec_y1], [this.rec_x2, this.rec_y2]]]
+          json.Rectangles = [[[this.rectangle_x1, this.rectangle_y1], [this.rectangle_x2, this.rectangle_y2]]]
         else
-          json.Rectangles.push([[this.rec_x1, this.rec_y1], [this.rec_x2, this.rec_y2]])
+          json.Rectangles.push([[this.rectangle_x1, this.rectangle_y1], [this.rectangle_x2, this.rectangle_y2]])
         this.MetajsonTxt = JSON.stringify(json);
         this.MetaDataText.nativeElement.value = this.MetajsonTxt;
         // end add to metadata    
@@ -308,15 +322,15 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       this.ctx.font = "15px Arial";
       this.ctx.fillText(this.textInput.nativeElement.value, 
-        this.pos1 - rect.left, this.pos2 - rect.top + 15);
+        this.text_x - rect.left, this.text_y - rect.top + 15);
       
       // add to metadata
       var json = JSON.parse(this.MetajsonTxt);
       var text = json.Texts;
       if (text == undefined)
-        json.Texts = [[this.textInput.nativeElement.value, this.pos1 - rect.left, this.pos2 - rect.top + 15]]
+        json.Texts = [[this.textInput.nativeElement.value, this.text_x - rect.left, this.text_y - rect.top + 15]]
       else
-        json.Texts.push([this.textInput.nativeElement.value, this.pos1 - rect.left, this.pos2 - rect.top + 15])
+        json.Texts.push([this.textInput.nativeElement.value, this.text_x - rect.left, this.text_y - rect.top + 15])
       this.MetajsonTxt = JSON.stringify(json);
       this.MetaDataText.nativeElement.value = this.MetajsonTxt;
       // end add to metadata
@@ -464,9 +478,10 @@ export class ImageCanvasEditingComponent implements OnInit {
     
     var json = JSON.parse(this.MetajsonTxt);
     let texts = json["Texts"];
-    let lines = json["Polylines"];
-    let gons = json["Polygons"];
-    let recs = json["Rectangles"];
+    let polylines = json["Polylines"];
+    let polygons = json["Polygons"];
+    let rectangles = json["Rectangles"];
+    let points = json["Points"];
     
     let curr = [];
 
@@ -487,10 +502,27 @@ export class ImageCanvasEditingComponent implements OnInit {
       }
     }
 
+    // Check Points
+    if (points != null) {
+      for (let i = 0; i < points.length; i++) {
+        curr = points[i];
+        var x2 = curr[0]
+        var y2 = curr[1]
+        var distance = this.points_distance(x1, y1, x2, y2)
+        
+        if (distance < min_distance) {
+          min_distance = distance
+          this.annotation_index = i
+          this.annotation_type = 'Points'
+          this.annotation_data = curr
+        }
+      }
+    }
+
     // Check Polylines
-    if (lines != null) {
-      for (let i = 0; i < lines.length; i++) {
-        curr = lines[i];
+    if (polylines != null) {
+      for (let i = 0; i < polylines.length; i++) {
+        curr = polylines[i];
         for (let j = 0; j < curr.length; j++) {
           var x2 = curr[j][0]
           var y2 = curr[j][1]
@@ -507,9 +539,9 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
 
     // Check Polygons
-    if (gons != null) {
-      for (let i = 0; i < gons.length; i++) {
-        curr = gons[i];
+    if (polygons != null) {
+      for (let i = 0; i < polygons.length; i++) {
+        curr = polygons[i];
         for (let j = 0; j < curr.length; j++) {
           var x2 = curr[j][0]
           var y2 = curr[j][1]
@@ -526,9 +558,9 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
     
     // Check Rectagles
-    if (recs != null) {
-      for (let i = 0; i < recs.length; i++) {
-        curr = recs[i];
+    if (rectangles != null) {
+      for (let i = 0; i < rectangles.length; i++) {
+        curr = rectangles[i];
         for (let j = 0; j < 2; j++) {
           for (let k = 0; k < 2; k++) {
             var x2 = curr[j][0]
@@ -553,6 +585,14 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.color_point(selected_x, selected_y)
       this.edit_mode_annotation_selected = true
     }
+
+    else if (this.annotation_type == 'Points') {
+      var selected_x = this.annotation_data[0]
+      var selected_y = this.annotation_data[1]
+      this.color_point(selected_x, selected_y)
+      this.edit_mode_annotation_selected = true
+    }
+
     else if (this.annotation_type == 'Polylines') {
       for (let i = 0; i < this.annotation_data.length; i++) {
         this.color_point(this.annotation_data[i][0], this.annotation_data[i][1])
@@ -591,12 +631,12 @@ export class ImageCanvasEditingComponent implements OnInit {
     return result
   }
 
-  color_point(x, y, color='green') {
+  color_point(x, y, color='green', radius=5) {
     this.ctx = this.canvas.nativeElement.getContext('2d');
     var rect = this.canvas.nativeElement.getBoundingClientRect();
 
     this.ctx.beginPath();
-    this.ctx.arc(x, y, 5, 0, 2 * Math.PI);
+    this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
     this.ctx.fillStyle = color;
     this.ctx.fill();
     this.ctx.fillStyle = 'black';
@@ -612,6 +652,14 @@ export class ImageCanvasEditingComponent implements OnInit {
       
       this.edit_mode_point_selected = true
     }
+
+    else if (this.annotation_type == 'Points') {
+      this.min_x = this.annotation_data[0]
+      this.min_y = this.annotation_data[1]
+      
+      this.edit_mode_point_selected = true
+    }
+
     else if (this.annotation_type == 'Polylines') {
       for (let i = 0; i < this.annotation_data.length; i++) {
         var x2 = this.annotation_data[i][0]
@@ -675,6 +723,16 @@ export class ImageCanvasEditingComponent implements OnInit {
       
       this.SendMetaData()
     }
+
+    if (this.annotation_type  == 'Points') {
+      var json = JSON.parse(this.MetajsonTxt);
+      json.Points[this.annotation_index] = [x, y]
+      this.MetajsonTxt = JSON.stringify(json);
+      this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+      
+      this.SendMetaData()
+    }
+
     else if (this.annotation_type  == 'Polylines') {
       // Move all points
       if (this.move_all_points == true) {
@@ -844,9 +902,10 @@ export class ImageCanvasEditingComponent implements OnInit {
   DrawMetaData(){
     var json = JSON.parse(this.MetajsonTxt);
     let texts = json["Texts"];
-    let lines = json["Polylines"];
-    let gons = json["Polygons"];
-    let recs = json["Rectangles"];
+    let polylines = json["Polylines"];
+    let polygons = json["Polygons"];
+    let rectangles = json["Rectangles"];
+    let points = json["Points"];
     
     let curr = [];
 
@@ -861,10 +920,20 @@ export class ImageCanvasEditingComponent implements OnInit {
       }
     }
 
+    // Draw Points
+    if (points != null) {
+      for (let i = 0; i < points.length; i++) {
+        curr = points[i];
+        this.ctx = this.canvas.nativeElement.getContext('2d');
+
+        this.color_point(curr[0], curr[1], 'black', 10);
+      }
+    }
+
     // Draw Polylines
-    if (lines != null) {
-      for (let i = 0; i < lines.length; i++) {
-        curr = lines[i];
+    if (polylines != null) {
+      for (let i = 0; i < polylines.length; i++) {
+        curr = polylines[i];
         for (let j = 0; j < curr.length-1; j++) {
           this.drawLine(curr[j][0], curr[j][1], curr[j+1][0], curr[j+1][1]);
         }
@@ -872,9 +941,9 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
 
     // Draw Polygons
-    if (gons != null) {
-      for (let i = 0; i < gons.length; i++) {
-        curr = gons[i];
+    if (polygons != null) {
+      for (let i = 0; i < polygons.length; i++) {
+        curr = polygons[i];
         for (let j = 0; j < curr.length-1; j++) {
           this.drawLine(curr[j][0], curr[j][1], curr[j+1][0], curr[j+1][1]);
         }
@@ -883,9 +952,9 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
     
     // Draw Rectagles
-    if (recs != null) {
-      for (let i = 0; i < recs.length; i++) {
-        curr = recs[i];
+    if (rectangles != null) {
+      for (let i = 0; i < rectangles.length; i++) {
+        curr = rectangles[i];
         this.drawLine(curr[0][0], curr[0][1], curr[0][0], curr[1][1]);
         this.drawLine(curr[0][0], curr[0][1], curr[1][0], curr[0][1]);
         this.drawLine(curr[1][0], curr[0][1], curr[1][0], curr[1][1]);

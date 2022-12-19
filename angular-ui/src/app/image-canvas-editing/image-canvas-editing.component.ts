@@ -196,13 +196,13 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.color_point(this.point_x, this.point_y, 'black', 10)
 
       var json = JSON.parse(this.MetajsonTxt);
-        var line = json.Points;
-        if (line == undefined)
-          json.Points = [[this.point_x, this.point_y]]
-        else
-          json.Points.push([this.point_x, this.point_y])
-        this.MetajsonTxt = JSON.stringify(json);
-        this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+      var line = json.Points;
+      if (line == undefined)
+        json.Points = [[this.point_x, this.point_y]]
+      else
+        json.Points.push([this.point_x, this.point_y])
+      this.MetajsonTxt = JSON.stringify(json);
+      this.MetaDataText.nativeElement.value = this.MetajsonTxt;
     }
 
 
@@ -392,7 +392,15 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       this.drawLine(this.point1_data[0], this.point1_data[1], this.point2_data[0], this.point2_data[1])
 
-
+      // Add connection to metadata
+      var json = JSON.parse(this.MetajsonTxt);
+      var line = json.Connections;
+      if (line == undefined)
+        json.Connections = [[this.point1_index, this.point2_index]]
+      else
+        json.Points.push([this.point1_index, this.point2_index])
+      this.MetajsonTxt = JSON.stringify(json);
+      this.MetaDataText.nativeElement.value = this.MetajsonTxt;
     }
   }
 
@@ -511,7 +519,8 @@ export class ImageCanvasEditingComponent implements OnInit {
   DrawMetaData(){
     var json = JSON.parse(this.MetajsonTxt);
     let points = json["Points"];
-    
+    let connections = json["Connections"];
+
     let curr = [];
 
     // Draw Points
@@ -521,6 +530,18 @@ export class ImageCanvasEditingComponent implements OnInit {
         this.ctx = this.canvas.nativeElement.getContext('2d');
 
         this.color_point(curr[0], curr[1], 'black', 10);
+      }
+    }
+
+    if (connections != null) {
+      for (let i = 0; i < connections.length; i++) {
+        curr = connections[i];
+        this.ctx = this.canvas.nativeElement.getContext('2d');
+
+        let point1 = points[curr[0]];
+        let point2 = points[curr[1]];
+
+        this.drawLine(point1[0], point1[1], point2[0], point2[1]);
       }
     }
   }

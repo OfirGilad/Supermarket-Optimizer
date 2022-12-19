@@ -97,14 +97,12 @@ export class ImageCanvasEditingComponent implements OnInit {
   // EditPosition - Modes
   edit_annotations_mode_stage1: boolean = false
   edit_annotations_mode_stage2: boolean = false
-  edit_annotations_mode_stage3: boolean = false
   move_all_points: boolean = false
 
   
   // AddConnection - Modes
   add_connections_mode_stage1: boolean = false
   add_connections_mode_stage2: boolean = false
-  add_connections_mode_stage3: boolean = false
 
 
   OnClick(e: any) {
@@ -134,11 +132,10 @@ export class ImageCanvasEditingComponent implements OnInit {
         // Selecting new Point coordinates
         this.setSelectedPoint(User_X, User_Y)
         this.edit_annotations_mode_stage1 = false
-        this.edit_annotations_mode_stage3 = false
       }
     }
 
-    if (this.CurrentClicked == "AddConnection"){
+    else if (this.CurrentClicked == "AddConnection"){
       this.disableOtherOptions()
       this.CurrentClicked = "AddConnection";
 
@@ -162,8 +159,26 @@ export class ImageCanvasEditingComponent implements OnInit {
           // Selecting Second Point
           this.findSecondPoint(User_X, User_Y)
           this.add_connections_mode_stage1 = false
-          this.add_connections_mode_stage3 = false   
       }
+    }
+
+
+    else if (this.CurrentClicked == "SelectStartingPoint"){
+      this.disableOtherOptions()
+      this.CurrentClicked = "SelectStartingPoint";
+
+      // Used to reset green dots after selectiom
+      this.SendMetaData()
+      this.CurrentClicked = "SelectStartingPoint";
+
+      var User_X = e.pageX - rect.left
+      var User_Y = e.pageY - rect.top
+
+      // console.log(this.MetajsonTxt)
+      if (this.MetajsonTxt != '{}') {
+        this.findStartingPoint(User_X, User_Y)
+        this.CurrentClicked = "SelectStartingPoint";
+      } 
     }
 
     else if (this.CurrentClicked == "Metadata"){
@@ -222,31 +237,38 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   contextMenu(e: any){
     e.preventDefault();
-    if (this.edit_annotations_mode_stage3 == false) {
+    if (this.edit_annotations_mode_stage2 == false) {
       this.menu.nativeElement.style.display = "block";
       this.menu.nativeElement.style.top = e.pageY + "px";
       this.menu.nativeElement.style.left = e.pageX + "px";
     }
-    else if (this.annotation_type == "Texts") { 
-      this.ctx = this.canvas.nativeElement.getContext('2d');
-      var rect = this.canvas.nativeElement.getBoundingClientRect();
 
-      // Edit current Text Box
-      this.textInput.nativeElement.style.display = "block";
-      this.textInput.nativeElement.style.top = this.min_y + rect.top - 15 + "px";
-      this.textInput.nativeElement.style.left = this.min_x + rect.left + "px";
+    if (this.add_connections_mode_stage2 == false) {
+      this.menu.nativeElement.style.display = "block";
+      this.menu.nativeElement.style.top = e.pageY + "px";
+      this.menu.nativeElement.style.left = e.pageX + "px";
     }
-    else if (this.annotation_type != "Texts") {
-      this.ctx = this.canvas.nativeElement.getContext('2d');
-      var rect = this.canvas.nativeElement.getBoundingClientRect();
 
-      for (let i = 0; i < this.annotation_data.length; i++) {
-        if (i != this.point_index) {
-          this.color_point(this.annotation_data[i][0], this.annotation_data[i][1], 'yellow')
-        }
-      }
-      this.move_all_points = true
-    }
+    // else if (this.annotation_type == "Texts") { 
+    //   this.ctx = this.canvas.nativeElement.getContext('2d');
+    //   var rect = this.canvas.nativeElement.getBoundingClientRect();
+
+    //   // Edit current Text Box
+    //   this.textInput.nativeElement.style.display = "block";
+    //   this.textInput.nativeElement.style.top = this.min_y + rect.top - 15 + "px";
+    //   this.textInput.nativeElement.style.left = this.min_x + rect.left + "px";
+    // }
+    // else if (this.annotation_type != "Texts") {
+    //   this.ctx = this.canvas.nativeElement.getContext('2d');
+    //   var rect = this.canvas.nativeElement.getBoundingClientRect();
+
+    //   for (let i = 0; i < this.annotation_data.length; i++) {
+    //     if (i != this.point_index) {
+    //       this.color_point(this.annotation_data[i][0], this.annotation_data[i][1], 'yellow')
+    //     }
+    //   }
+    //   this.move_all_points = true
+    // }
   }
   // Right Click Menu - END
 
@@ -388,22 +410,78 @@ export class ImageCanvasEditingComponent implements OnInit {
         }
       }
 
-      this.add_connections_mode_stage2 = true
+      if (this.point1_index != this.point2_index) {
 
-      this.drawLine(this.point1_data[0], this.point1_data[1], this.point2_data[0], this.point2_data[1])
+        // Add connection to metadata
+        var line = json.Connections;
+        if (line == undefined)
+          json.Connections = [[this.point1_index, this.point2_index]]
+        else {
+          var new_connection = [this.point1_index, this.point2_index]
+          var is_new_connection = true
 
-      // Add connection to metadata
-      var json = JSON.parse(this.MetajsonTxt);
-      var line = json.Connections;
-      if (line == undefined)
-        json.Connections = [[this.point1_index, this.point2_index]]
-      else
-        json.Points.push([this.point1_index, this.point2_index])
-      this.MetajsonTxt = JSON.stringify(json);
-      this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+          for (let i = 0; i < connections.length; i++) {
+            curr = connections[i];
+            var existing_connection1 = [curr[0], curr[1]]
+            var existing_connection2 = [curr[1], curr[0]]
+            
+            if ((JSON.stringify(existing_connection1)==JSON.stringify(new_connection)) || 
+                (JSON.stringify(existing_connection2)==JSON.stringify(new_connection))) {
+              is_new_connection = false
+            }
+          }
+
+          // Add only if connection doesn't exist
+          if (is_new_connection == true) {
+            json.Connections.push([this.point1_index, this.point2_index])
+          }
+        }
+
+        this.MetajsonTxt = JSON.stringify(json);
+        this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+        this.SendMetaData() 
+      }
     }
   }
 
+  point3_index = 0
+  point3_data = []
+  min_x3 = 0
+  min_y3 = 0
+  min_x_dist3 = 0
+  min_y_dist3 = 0
+
+  findStartingPoint(x1, y1) {
+    this.point3_data = []
+    var min_distance = this.canvas.nativeElement.width * this.canvas.nativeElement.width
+    
+    var json = JSON.parse(this.MetajsonTxt);
+    let points = json["Points"];
+    
+    let curr = [];   
+
+    // Check Points
+    if (points != null) {
+      for (let i = 0; i < points.length; i++) {
+        curr = points[i];
+        var x2 = curr[0]
+        var y2 = curr[1]
+        var distance = this.points_distance(x1, y1, x2, y2)
+        
+        if (distance < min_distance) {
+          min_distance = distance
+          this.point3_index = i
+          this.point3_data = curr
+        }
+      }
+
+      var selected_x = this.point3_data[0]
+      var selected_y = this.point3_data[1]
+      this.color_point(selected_x, selected_y, 'green', 10)
+
+      //this.SendMetaData() 
+    }
+  }
 
 
   // Buttons Implementation - START
@@ -411,7 +489,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.edit_in_progress = true
     this.disappearContext();
     if (this.CurrentClicked != "EditPosition") {
-      // this.OptionSelected(1)
 
       // Enable Edit Mode
       this.CurrentClicked = "EditPosition";
@@ -429,18 +506,17 @@ export class ImageCanvasEditingComponent implements OnInit {
   edit_in_progress = false
 
   DisableEditAnnotationsMode() {
-    if (this.add_connections_mode_stage1 == true && this.edit_in_progress == false) {
-      this.add_connections_mode_stage1 = false
-      this.add_connections_mode_stage2 = false
-      this.add_connections_mode_stage3 = false
+    if (this.edit_annotations_mode_stage1 == true && this.edit_in_progress == false) {
+      this.edit_annotations_mode_stage1 = false
+      this.edit_annotations_mode_stage2 = false
       this.SendMetaData()
     }
   }
 
-  
+  ///
 
   AddConnectionsMode() {
-    this.edit_in_progress = true
+    this.add_in_progress = true
     this.disappearContext();
     if (this.CurrentClicked != "AddConnection") {
 
@@ -450,24 +526,47 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.CurrentClicked = "AddConnection";
     }
     else {
-      this.edit_in_progress = false
+      this.add_in_progress = false
       this.DisableAddConnectionsMode()
       this.CurrentClicked = "";
       //this.ClearAnnotations(false)
     }
   }
 
+  add_in_progress = false
+
   DisableAddConnectionsMode() {
-    if (this.edit_annotations_mode_stage1 == true && this.edit_in_progress == false) {
-      this.edit_annotations_mode_stage1 = false
-      this.edit_annotations_mode_stage2 = false
-      this.edit_annotations_mode_stage3 = false
+    if (this.add_connections_mode_stage1 == true && this.add_in_progress == false) {
+      this.add_connections_mode_stage1 = false
+      this.add_connections_mode_stage2 = false
       this.SendMetaData()
     }
   }
 
 
   ///
+
+  SelectStartingPointMode() {
+    this.disappearContext();
+    if (this.CurrentClicked != "SelectStartingPoint") {
+
+      // Enable Edit Mode
+      this.CurrentClicked = "SelectStartingPoint";
+      this.disableOtherOptions()
+      this.CurrentClicked = "SelectStartingPoint";
+    }
+    else {
+      this.DisableSelectStartingPointMode()
+      this.CurrentClicked = "";
+      //this.ClearAnnotations(false)
+    }
+  }
+
+  DisableSelectStartingPointMode() {
+    this.SendMetaData()
+  }
+
+  ////
   
 
   CVFunction() {
@@ -478,6 +577,8 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable Edit Mode
       this.edit_in_progress = false
       this.DisableEditAnnotationsMode()
+      this.add_in_progress = false
+      this.DisableAddConnectionsMode()
 
       this.CurrentClicked = "OpenCV";
       this.disableOtherOptions()
@@ -496,6 +597,9 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable Edit Mode
       this.edit_in_progress = false
       this.DisableEditAnnotationsMode()
+
+      this.add_in_progress = false
+      this.DisableAddConnectionsMode()
 
       this.CurrentClicked = "Metadata";
       this.disableOtherOptions()
@@ -607,24 +711,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     
   }
 
-  DrawStartingPoint() {
-    this.disappearContext();
-    if (this.CurrentClicked != "StartingPoint") {
-
-      // Disable Edit Mode
-      this.edit_in_progress = false
-      this.DisableEditAnnotationsMode()
-
-      this.CurrentClicked = "StartingPoint";
-      this.disableOtherOptions()
-      this.CurrentClicked = "StartingPoint";
-    }
-    else {
-      this.CurrentClicked ="";
-      this.textInput.nativeElement.style.display = "none";
-    }
-  }
-
   DrawPoint() {
     this.disappearContext();
     if (this.CurrentClicked != "Point") {
@@ -632,6 +718,9 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable Edit Mode
       this.edit_in_progress = false
       this.DisableEditAnnotationsMode()
+
+      this.add_in_progress = false
+      this.DisableAddConnectionsMode()
 
       this.CurrentClicked = "Point";
       this.disableOtherOptions()
@@ -651,7 +740,10 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.edit_in_progress = false
       this.edit_annotations_mode_stage1 = false
       this.edit_annotations_mode_stage2 = false
-      this.edit_annotations_mode_stage3 = false
+
+      this.add_in_progress = false
+      this.add_connections_mode_stage1 = false
+      this.add_connections_mode_stage2 = false
     }
 
     let LastMetadata = this.MetaDataText.nativeElement.value;
@@ -699,7 +791,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.ctx.stroke();
   }
 
-  color_point(x, y, color='green', radius=5) {
+  color_point(x, y, color='red', radius=5) {
     this.ctx = this.canvas.nativeElement.getContext('2d');
     var rect = this.canvas.nativeElement.getBoundingClientRect();
 
@@ -707,7 +799,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
     this.ctx.fillStyle = color;
     this.ctx.fill();
-    this.ctx.fillStyle = 'black';
     this.ctx.stroke();
   }
 

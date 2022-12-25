@@ -622,8 +622,6 @@ export class ImageCanvasEditingComponent implements OnInit {
         this.points_list[i].selectable = false;
       }
     }
-
-    console.log(this.points_list)
     
     for (let i = 0; i < this.points_list.length; i++) {
       json.Points[i]['x'] = this.points_list[i].left;

@@ -90,6 +90,9 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.CallMetaData();
     this.CurrentClicked = "OpenCV";
     this.CVFunction();
+    this.CurrentClicked = "SelectStartingPoint";
+    this.SelectStartingPointMode();
+
     this.LastClicked = "";
   }
 
@@ -104,6 +107,11 @@ export class ImageCanvasEditingComponent implements OnInit {
   add_connections_mode_stage1: boolean = false
   add_connections_mode_stage2: boolean = false
 
+  
+  // SelectStartingPoint - Modes
+  select_starting_point_mode_stage1: boolean = false
+  select_starting_point_mode_stage2: boolean = false
+
 
   OnClick(e: any) {
     this.ctx = this.canvas.nativeElement.getContext('2d');
@@ -113,7 +121,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.disableOtherOptions()
       this.CurrentClicked = "EditPosition";
 
-      // Used to reset green dots after selectiom
+      // Used to reset colored dots after selection
       this.SendMetaData()
       this.CurrentClicked = "EditPosition";
 
@@ -139,7 +147,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.disableOtherOptions()
       this.CurrentClicked = "AddConnection";
 
-      // Used to reset green dots after selectiom
+      // Used to reset colored dots after selection
       this.SendMetaData()
       this.CurrentClicked = "AddConnection";
 
@@ -167,7 +175,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.disableOtherOptions()
       this.CurrentClicked = "SelectStartingPoint";
 
-      // Used to reset green dots after selectiom
+      // Used to reset colored dots after selection
       this.SendMetaData()
       this.CurrentClicked = "SelectStartingPoint";
 
@@ -177,7 +185,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       // console.log(this.MetajsonTxt)
       if (this.MetajsonTxt != '{}') {
         this.findStartingPoint(User_X, User_Y)
-        this.CurrentClicked = "SelectStartingPoint";
+        this.CurrentClicked = "";
       } 
     }
 
@@ -212,10 +220,10 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       var json = JSON.parse(this.MetajsonTxt);
       var line = json.Points;
-      if (line == undefined)
-        json.Points = [[this.point_x, this.point_y]]
-      else
-        json.Points.push([this.point_x, this.point_y])
+      if (line == undefined) {
+        json.Points = []
+      }
+      json.Points.push({"x": this.point_x, "y": this.point_y, "color": "black", "products": []})
       this.MetajsonTxt = JSON.stringify(json);
       this.MetaDataText.nativeElement.value = this.MetajsonTxt;
     }
@@ -299,8 +307,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     if (points != null) {
       for (let i = 0; i < points.length; i++) {
         curr = points[i];
-        var x2 = curr[0]
-        var y2 = curr[1]
+        var x2 = curr['x']
+        var y2 = curr['y']
         var distance = this.points_distance(x1, y1, x2, y2)
         
         if (distance < min_distance) {
@@ -311,9 +319,9 @@ export class ImageCanvasEditingComponent implements OnInit {
         }
       }
 
-      var selected_x = this.annotation_data[0]
-      var selected_y = this.annotation_data[1]
-      this.color_point(selected_x, selected_y)
+      var selected_x = this.annotation_data['x']
+      var selected_y = this.annotation_data['y']
+      this.color_point(selected_x, selected_y, 'red')
       this.edit_annotations_mode_stage1 = true
     }
   }
@@ -327,7 +335,8 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     if (this.annotation_type  == 'Points') {
       var json = JSON.parse(this.MetajsonTxt);
-      json.Points[this.annotation_index] = [x, y]
+      json.Points[this.annotation_index]['x'] = x;
+      json.Points[this.annotation_index]['y'] = y;
       this.MetajsonTxt = JSON.stringify(json);
       this.MetaDataText.nativeElement.value = this.MetajsonTxt;
       
@@ -360,8 +369,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     if (points != null) {
       for (let i = 0; i < points.length; i++) {
         curr = points[i];
-        var x2 = curr[0]
-        var y2 = curr[1]
+        var x2 = curr['x']
+        var y2 = curr['y']
         var distance = this.points_distance(x1, y1, x2, y2)
         
         if (distance < min_distance) {
@@ -371,9 +380,9 @@ export class ImageCanvasEditingComponent implements OnInit {
         }
       }
 
-      var selected_x = this.point1_data[0]
-      var selected_y = this.point1_data[1]
-      this.color_point(selected_x, selected_y)
+      var selected_x = this.point1_data['x']
+      var selected_y = this.point1_data['y']
+      this.color_point(selected_x, selected_y, 'red')
       this.add_connections_mode_stage1 = true
     }
   }
@@ -399,8 +408,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     if (points != null) {
       for (let i = 0; i < points.length; i++) {
         curr = points[i];
-        var x2 = curr[0]
-        var y2 = curr[1]
+        var x2 = curr['x']
+        var y2 = curr['y']
         var distance = this.points_distance(x1, y1, x2, y2)
         
         if (distance < min_distance) {
@@ -411,30 +420,34 @@ export class ImageCanvasEditingComponent implements OnInit {
       }
 
       if (this.point1_index != this.point2_index) {
+        
+        var new_connection = [this.point1_index, this.point2_index];
+        var is_new_connection = true;
 
         // Add connection to metadata
         var line = json.Connections;
-        if (line == undefined)
-          json.Connections = [[this.point1_index, this.point2_index]]
+        if (line == undefined) {
+          json.Connections = [];
+
+        }
         else {
           var new_connection = [this.point1_index, this.point2_index]
-          var is_new_connection = true
 
           for (let i = 0; i < connections.length; i++) {
             curr = connections[i];
-            var existing_connection1 = [curr[0], curr[1]]
-            var existing_connection2 = [curr[1], curr[0]]
+            var existing_connection1 = [curr['s'], curr['t']]
+            var existing_connection2 = [curr['t'], curr['s']]
             
             if ((JSON.stringify(existing_connection1)==JSON.stringify(new_connection)) || 
                 (JSON.stringify(existing_connection2)==JSON.stringify(new_connection))) {
               is_new_connection = false
             }
           }
+        }
 
-          // Add only if connection doesn't exist
-          if (is_new_connection == true) {
-            json.Connections.push([this.point1_index, this.point2_index])
-          }
+        // Add only if connection doesn't exist
+        if (is_new_connection == true) {
+          json.Connections.push({'s': this.point1_index, 't': this.point2_index, 'color': 'black'})
         }
 
         this.MetajsonTxt = JSON.stringify(json);
@@ -464,8 +477,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     if (points != null) {
       for (let i = 0; i < points.length; i++) {
         curr = points[i];
-        var x2 = curr[0]
-        var y2 = curr[1]
+        var x2 = curr['x']
+        var y2 = curr['y']
         var distance = this.points_distance(x1, y1, x2, y2)
         
         if (distance < min_distance) {
@@ -475,11 +488,18 @@ export class ImageCanvasEditingComponent implements OnInit {
         }
       }
 
-      var selected_x = this.point3_data[0]
-      var selected_y = this.point3_data[1]
-      this.color_point(selected_x, selected_y, 'green', 10)
+      for (let i = 0; i < points.length; i++) {
+        if (this.point3_index != i) {
+          points[i]['color'] = 'black';
+        }
+        else {
+          points[i]['color'] = 'green';
+        }
+      }
 
-      //this.SendMetaData() 
+      this.MetajsonTxt = JSON.stringify(json);
+      this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+      this.SendMetaData() 
     }
   }
 
@@ -556,14 +576,14 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.CurrentClicked = "SelectStartingPoint";
     }
     else {
-      this.DisableSelectStartingPointMode()
+      //this.DisableSelectStartingPointMode()
       this.CurrentClicked = "";
       //this.ClearAnnotations(false)
     }
   }
 
   DisableSelectStartingPointMode() {
-    this.SendMetaData()
+    //this.SendMetaData()
   }
 
   ////
@@ -597,7 +617,6 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable Edit Mode
       this.edit_in_progress = false
       this.DisableEditAnnotationsMode()
-
       this.add_in_progress = false
       this.DisableAddConnectionsMode()
 
@@ -633,19 +652,20 @@ export class ImageCanvasEditingComponent implements OnInit {
         curr = points[i];
         this.ctx = this.canvas.nativeElement.getContext('2d');
 
-        this.color_point(curr[0], curr[1], 'black', 10);
+        this.color_point(curr['x'], curr['y'], curr['color'], 10);
       }
     }
 
+    // Draw Connections
     if (connections != null) {
       for (let i = 0; i < connections.length; i++) {
         curr = connections[i];
         this.ctx = this.canvas.nativeElement.getContext('2d');
 
-        let point1 = points[curr[0]];
-        let point2 = points[curr[1]];
+        let point1 = points[curr['s']];
+        let point2 = points[curr['t']];
 
-        this.drawLine(point1[0], point1[1], point2[0], point2[1]);
+        this.drawLine(point1['x'], point1['y'], point2['x'], point2['y'], curr['color']);
       }
     }
   }
@@ -782,16 +802,17 @@ export class ImageCanvasEditingComponent implements OnInit {
     e.stopPropagation();
   }
 
-  drawLine(x1, y1, x2, y2) {
+  drawLine(x1, y1, x2, y2, color='black') {
     this.ctx = this.canvas.nativeElement.getContext('2d');
     //console.log(x1,y1,x2,y2)
     this.ctx.beginPath();
     this.ctx.moveTo(x1, y1);
     this.ctx.lineTo(x2, y2);
+    this.ctx.strokeStyle = color;
     this.ctx.stroke();
   }
 
-  color_point(x, y, color='red', radius=5) {
+  color_point(x, y, color='black', radius=5) {
     this.ctx = this.canvas.nativeElement.getContext('2d');
     var rect = this.canvas.nativeElement.getBoundingClientRect();
 

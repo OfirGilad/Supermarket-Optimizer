@@ -626,12 +626,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     console.log(this.points_list)
     
     for (let i = 0; i < this.points_list.length; i++) {
-      console.log(this.points_list)
-      console.log(points)
-
       json.Points[i]['x'] = this.points_list[i].left;
       json.Points[i]['y'] = this.points_list[i].top;
-      
     }
 
     this.MetajsonTxt = JSON.stringify(json);

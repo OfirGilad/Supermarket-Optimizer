@@ -1,6 +1,13 @@
 <div class="main">
     <div class="productnav">
       <h1 align="center">Product List</h1>
+      <a *ngFor="let product of listOfProducts">
+        <input type="checkbox" id={{product}} name={{product}} value={{product}}>
+        <label class="product" for={{product}}>{{product}}</label>
+      </a>
+      <b>
+      <input type="submit" value="Add Product" (click)="addProduct()">
+      </b>
     </div>
   </div>
   

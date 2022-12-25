@@ -12,16 +12,26 @@ export class ProductsListComponent implements OnInit {
     private imageCanvasEditingService: ImageCanvasEditingService,
   ) { }
   
-  MetajsonTxt: string = "{}"
+  listOfProducts = []
+  ProductsjsonTxt: string = "{}"
 
   ngOnInit(): void {
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
       
       //this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
-      this.MetajsonTxt = newImageJSON['metadata'];
-      console.log(newImageJSON)
+      this.ProductsjsonTxt = newImageJSON['products'];
+      console.log(this.ProductsjsonTxt)
+
+      var json = JSON.parse(this.ProductsjsonTxt);
       
+      this.listOfProducts =[]
+      for (let key in json) {
+        this.listOfProducts.push(key)
+      }
     })
   }
 
+  addProduct(){
+    console.log('Open Add Product')
+  }
 }

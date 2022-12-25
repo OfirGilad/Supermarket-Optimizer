@@ -1040,7 +1040,6 @@ export class ImageCanvasEditingComponent implements OnInit {
             y2: obj.top
           })
         }
-        
       }
     })
   }

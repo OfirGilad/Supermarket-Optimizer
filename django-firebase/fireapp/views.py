@@ -6,11 +6,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http.response import JsonResponse
 
 import pyrebase
-import cv2
-import skimage.io
 import json
-from pytesseract import pytesseract
 from datetime import datetime
+
+import skimage.io
 from PIL import Image
 
 

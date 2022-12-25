@@ -16,22 +16,24 @@ import { fabric } from 'fabric';
 })
 export class ImageCanvasEditingComponent implements OnInit {
 
-  currentImagePath: string = "";
-
-  @ViewChild('canvas', { static: true })
-  canvas: ElementRef<HTMLCanvasElement>;  
-  fabric_canvas: any;
-
-  private ctx: CanvasRenderingContext2D;
-  image = new Image();
-
   constructor(
     private imageCanvasEditingService: ImageCanvasEditingService,
     private openCVService: OpenCVService,
     private metadataService: MetadataService,
   ) { }
 
+  @ViewChild('canvas', { static: true })
+  canvas: ElementRef<HTMLCanvasElement>;  
+  fabric_canvas: any;
+
+  private ctx: CanvasRenderingContext2D;
+
+  currentImagePath: string = "";
+
   @ViewChild('area') menuArea;
+
+  
+
 
   ngOnInit(): void {
     // Clean Canvas
@@ -59,6 +61,8 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       fabric_canvas.setWidth(img.width);
       fabric_canvas.setHeight(img.height);
+
+      this.currentImagePath = newImageJSON['url']
 
       this.menuArea.nativeElement.style.width = img.width + 'px';
       this.menuArea.nativeElement.style.height = img.height + 'px';
@@ -98,7 +102,11 @@ export class ImageCanvasEditingComponent implements OnInit {
   
   points_counter: number = 0;
   points_list = []
+
+  connections_counter: number = 0;
   connections_list = []
+
+  temp_points_list = []
 
   // For Point
   point_x: number = 0;
@@ -143,26 +151,29 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.disableOtherOptions()
       this.CurrentClicked = "EditPosition";
 
-      // Used to reset colored dots after selection
-      this.SendMetaData()
-      this.CurrentClicked = "EditPosition";
+      //
+      var json = JSON.parse(this.MetajsonTxt);
+      let points = json["Points"];
+      
+      // Check Points
+      if (points != null) {
+        for (let i = 0; i < this.points_list.length; i++) {
+          this.points_list[i].selectable = true;
 
-      var User_X = e.pageX - rect.left
-      var User_Y = e.pageY - rect.top
-
-      // Selecting Annotation
-      if (this.edit_annotations_mode_stage1 == false) {
-        // console.log(this.MetajsonTxt)
-        if (this.MetajsonTxt != '{}') {
-          this.findClosestPoint(User_X, User_Y)
-          this.CurrentClicked = "EditPosition";
+          // disable scaling
+          this.points_list[i].setControlsVisibility({
+            mt: false, 
+            mb: false, 
+            ml: false, 
+            mr: false, 
+            bl: false,
+            br: false, 
+            tl: false, 
+            tr: false,
+        });
         }
       }
-      else {
-        // Selecting new Point coordinates
-        this.setSelectedPoint(User_X, User_Y)
-        this.edit_annotations_mode_stage1 = false
-      }
+
     }
 
     else if (this.CurrentClicked == "AddConnection"){
@@ -170,7 +181,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.CurrentClicked = "AddConnection";
 
       // Used to reset colored dots after selection
-      this.SendMetaData()
+      //this.SendMetaData()
       this.CurrentClicked = "AddConnection";
 
       var User_X = e.pageX - rect.left
@@ -198,7 +209,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.CurrentClicked = "SelectStartingPoint";
 
       // Used to reset colored dots after selection
-      this.SendMetaData()
+      //this.SendMetaData()
       this.CurrentClicked = "SelectStartingPoint";
 
       var User_X = e.pageX - rect.left
@@ -245,13 +256,31 @@ export class ImageCanvasEditingComponent implements OnInit {
       if (line == undefined) {
         json.Points = []
       }
-      json.Points.push({"x": this.point_x, "y": this.point_y, "color": "black", "products": []})
+
+      var curr = {"x": this.point_x, "y": this.point_y, "color": "black", "products": []}
+      json.Points.push(curr)
       this.MetajsonTxt = JSON.stringify(json);
       this.MetaDataText.nativeElement.value = this.MetajsonTxt;
-      this.DrawMetaData();
+
+      var point_id = this.points_counter;
+      this.points_counter += 1;
+
+      var point = new fabric.Circle({
+        id: point_id,
+        radius: 10,
+        fill: curr['color'],
+        left: curr['x'],
+        top: curr['y'],
+        selectable: false,
+        originX: "center",
+        originY: "center",
+        hoverCursor: "auto"
+      });
+      console.log(point)
+      this.fabric_canvas.add(point);
+      this.points_list.push(point);
+ 
     }
-
-
     else {
       this.textInput.nativeElement.style.display = "none";
       this.disappearContext()
@@ -307,65 +336,65 @@ export class ImageCanvasEditingComponent implements OnInit {
 
 
   // Edit Mode - START
-  annotation_index = 0
-  annotation_type: string = ''
-  annotation_data = []
-  point_index = 0
-  min_x = 0
-  min_y = 0
-  min_x_dist = 0
-  min_y_dist = 0
+  // annotation_index = 0
+  // annotation_type: string = ''
+  // annotation_data = []
+  // point_index = 0
+  // min_x = 0
+  // min_y = 0
+  // min_x_dist = 0
+  // min_y_dist = 0
 
-  findClosestPoint(x1, y1) {
-    this.annotation_type = ''
-    this.annotation_data = []
-    var min_distance = this.canvas.nativeElement.width * this.canvas.nativeElement.width
+  // findClosestPoint(x1, y1) {
+  //   this.annotation_type = ''
+  //   this.annotation_data = []
+  //   var min_distance = this.canvas.nativeElement.width * this.canvas.nativeElement.width
     
-    var json = JSON.parse(this.MetajsonTxt);
-    let points = json["Points"];
+  //   var json = JSON.parse(this.MetajsonTxt);
+  //   let points = json["Points"];
     
-    let curr = [];   
+  //   let curr = [];   
 
-    // Check Points
-    if (points != null) {
-      for (let i = 0; i < points.length; i++) {
-        curr = points[i];
-        var x2 = curr['x']
-        var y2 = curr['y']
-        var distance = this.points_distance(x1, y1, x2, y2)
+  //   // Check Points
+  //   if (points != null) {
+  //     for (let i = 0; i < points.length; i++) {
+  //       curr = points[i];
+  //       var x2 = curr['x']
+  //       var y2 = curr['y']
+  //       var distance = this.points_distance(x1, y1, x2, y2)
         
-        if (distance < min_distance) {
-          min_distance = distance
-          this.annotation_index = i
-          this.annotation_type = 'Points'
-          this.annotation_data = curr
-        }
-      }
+  //       if (distance < min_distance) {
+  //         min_distance = distance
+  //         this.annotation_index = i
+  //         this.annotation_type = 'Points'
+  //         this.annotation_data = curr
+  //       }
+  //     }
 
-      var selected_x = this.annotation_data['x']
-      var selected_y = this.annotation_data['y']
-      this.color_point(selected_x, selected_y, 'red')
-      this.edit_annotations_mode_stage1 = true
-    }
-  }
+  //     var selected_x = this.annotation_data['x']
+  //     var selected_y = this.annotation_data['y']
+  //     this.color_point(selected_x, selected_y, 'red')
+  //     this.edit_annotations_mode_stage1 = true
+  //   }
+  // }
 
   
-  setSelectedPoint(x, y) {
-    this.min_x_dist = x - this.min_x
-    this.min_y_dist = y - this.min_y
+  // setSelectedPoint(x, y) {
+  //   this.min_x_dist = x - this.min_x
+  //   this.min_y_dist = y - this.min_y
 
-    // update to metadata
+  //   // update to metadata
 
-    if (this.annotation_type  == 'Points') {
-      var json = JSON.parse(this.MetajsonTxt);
-      json.Points[this.annotation_index]['x'] = x;
-      json.Points[this.annotation_index]['y'] = y;
-      this.MetajsonTxt = JSON.stringify(json);
-      this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+  //   if (this.annotation_type  == 'Points') {
+  //     var json = JSON.parse(this.MetajsonTxt);
+  //     json.Points[this.annotation_index]['x'] = x;
+  //     json.Points[this.annotation_index]['y'] = y;
+  //     this.MetajsonTxt = JSON.stringify(json);
+  //     this.MetaDataText.nativeElement.value = this.MetajsonTxt;
       
-      this.SendMetaData()   
-    }
-  }
+  //     this.SendMetaData()   
+  //   }
+  // }
   // Edit Mode - END
 
 
@@ -418,6 +447,10 @@ export class ImageCanvasEditingComponent implements OnInit {
   min_y_dist2 = 0
 
   findSecondPoint(x1, y1) {
+    for (let i = 0; i < this.temp_points_list.length; i++) {
+      this.fabric_canvas.remove(this.temp_points_list[i])
+    }
+
     this.point2_data = []
     var min_distance = this.canvas.nativeElement.width * this.canvas.nativeElement.width
     
@@ -470,12 +503,43 @@ export class ImageCanvasEditingComponent implements OnInit {
 
         // Add only if connection doesn't exist
         if (is_new_connection == true) {
-          json.Connections.push({'s': this.point1_index, 't': this.point2_index, 'color': 'black'})
+          var to_add = {'s': this.point1_index, 't': this.point2_index, 'color': 'black'}
+          json.Connections.push(to_add)
+          
+          var connection_id = [this.point1_index, this.point2_index];
+          this.connections_counter += 1;
+
+          var connection = new fabric.Line(
+            [
+              points[to_add['s']]['x'], points[to_add['s']]['y'], points[to_add['t']]['x'], points[to_add['t']]['y']
+            ],
+            {
+              id: connection_id,
+              stroke: to_add['color'],
+              strokeWidth: 2,
+              hasControls: false,
+              hasBorders: false,
+              selectable: false,
+              lockMovementX: true,
+              lockMovementY: true,
+              hoverCursor: "default",
+              originX: "center",
+              originY: "center"
+            }
+            );
+          console.log(connection)
+          this.connections_list.push(connection)
+          this.fabric_canvas.add(connection);
+          
+          this.fabric_canvas.on('object:moving', this.updateOnPointsMoving);
         }
 
         this.MetajsonTxt = JSON.stringify(json);
         this.MetaDataText.nativeElement.value = this.MetajsonTxt;
-        this.SendMetaData() 
+
+        
+
+        //this.SendMetaData() 
       }
     }
   }
@@ -522,51 +586,52 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       this.MetajsonTxt = JSON.stringify(json);
       this.MetaDataText.nativeElement.value = this.MetajsonTxt;
-      this.SendMetaData() 
+      //this.SendMetaData() 
     }
   }
 
 
   // Buttons Implementation - START
   EditAnnotationsMode() {
-    var json = JSON.parse(this.MetajsonTxt);
-    let points = json["Points"];
-    
-    let curr = [];   
-
-    // Check Points
-    if (points != null) {
-      for (let i = 0; i < this.points_list.length; i++) {
-        this.points_list[i].selectable = true;
-      }
-    }
-
-
     this.edit_in_progress = true
     this.disappearContext();
-    // if (this.CurrentClicked != "EditPosition") {
+    if (this.CurrentClicked != "EditPosition") {
 
-    //   // Enable Edit Mode
-    //   this.CurrentClicked = "EditPosition";
-    //   this.disableOtherOptions()
-    //   this.CurrentClicked = "EditPosition";
-    // }
-    // else {
-    //   this.edit_in_progress = false
-    //   this.DisableEditAnnotationsMode()
-    //   this.CurrentClicked = "";
-    //   //this.ClearAnnotations(false)
-    // }
+      // Enable Edit Mode
+      this.CurrentClicked = "EditPosition";
+      this.disableOtherOptions()
+      this.CurrentClicked = "EditPosition";
+      this.OnClick("NONE")
+    }
+    else {
+      this.edit_in_progress = false
+      this.DisableEditAnnotationsMode()
+      this.CurrentClicked = "";
+    }
   }
 
   edit_in_progress = false
 
   DisableEditAnnotationsMode() {
-    if (this.edit_annotations_mode_stage1 == true && this.edit_in_progress == false) {
-      this.edit_annotations_mode_stage1 = false
-      this.edit_annotations_mode_stage2 = false
-      this.SendMetaData()
+    var json = JSON.parse(this.MetajsonTxt);
+    let points = json["Points"];
+    
+    // Check Points
+    if (points != null) {
+      for (let i = 0; i < this.points_list.length; i++) {
+        this.points_list[i].selectable = false;
+      }
     }
+
+    console.log(this.points_list)
+
+    //this.SendMetaData()
+
+    // if (this.edit_annotations_mode_stage1 == true && this.edit_in_progress == false) {
+    //   this.edit_annotations_mode_stage1 = false
+    //   this.edit_annotations_mode_stage2 = false
+    //   this.SendMetaData()
+    // }
   }
 
   ///
@@ -595,7 +660,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     if (this.add_connections_mode_stage1 == true && this.add_in_progress == false) {
       this.add_connections_mode_stage1 = false
       this.add_connections_mode_stage2 = false
-      this.SendMetaData()
+      //this.SendMetaData()
     }
   }
 
@@ -805,11 +870,11 @@ export class ImageCanvasEditingComponent implements OnInit {
     if (this.CurrentClicked != "Point") {
 
       // Disable Edit Mode
-      this.edit_in_progress = false
-      this.DisableEditAnnotationsMode()
+      // this.edit_in_progress = false
+      // this.DisableEditAnnotationsMode()
 
-      this.add_in_progress = false
-      this.DisableAddConnectionsMode()
+      // this.add_in_progress = false
+      // this.DisableAddConnectionsMode()
 
       this.CurrentClicked = "Point";
       this.disableOtherOptions()
@@ -825,20 +890,28 @@ export class ImageCanvasEditingComponent implements OnInit {
     // this.OptionSelected(0)
 
     // Disable Edit Mode
-    if (deleteMetadata == true) {
-      this.edit_in_progress = false
-      this.edit_annotations_mode_stage1 = false
-      this.edit_annotations_mode_stage2 = false
+    // if (deleteMetadata == true) {
+    //   this.edit_in_progress = false
+    //   this.edit_annotations_mode_stage1 = false
+    //   this.edit_annotations_mode_stage2 = false
 
-      this.add_in_progress = false
-      this.add_connections_mode_stage1 = false
-      this.add_connections_mode_stage2 = false
-    }
+    //   this.add_in_progress = false
+    //   this.add_connections_mode_stage1 = false
+    //   this.add_connections_mode_stage2 = false
+    // }
 
     let LastMetadata = this.MetaDataText.nativeElement.value;
     this.disableOtherOptions()
     this.disappearContext()
-    this.ctx = this.canvas.nativeElement.getContext('2d');
+
+
+    this.fabric_canvas.clear();
+    this.fabric_canvas.setBackgroundImage(this.currentImagePath, this.fabric_canvas.renderAll.bind(this.fabric_canvas), {
+      backgroundImageOpacity: 1,      
+    });
+    
+
+    //this.ctx = this.canvas.nativeElement.getContext('2d');
 
     // Prevent CV returned image from being deleted
     // if(this.cv_call_image == false) {
@@ -882,14 +955,18 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
 
   color_point(x, y, color='black', radius=5) {
-    this.ctx = this.canvas.nativeElement.getContext('2d');
-    var rect = this.canvas.nativeElement.getBoundingClientRect();
-
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    this.ctx.fillStyle = color;
-    this.ctx.fill();
-    this.ctx.stroke();
+    var point = new fabric.Circle({
+      radius: 5,
+      fill: color,
+      left: x,
+      top: y,
+      selectable: false,
+      originX: "center",
+      originY: "center",
+      hoverCursor: "auto"
+    });
+    this.fabric_canvas.add(point);
+    this.temp_points_list.push(point);
   }
 
   points_distance(x1, y1, x2, y2) {
@@ -909,4 +986,32 @@ export class ImageCanvasEditingComponent implements OnInit {
     // console.log("RESULT",result)
     return result
   }
+
+
+  // Update line according to current point location
+  updateOnPointsMoving(o) {
+    let obj = o.target;
+    var fabric_canvas = obj.canvas;
+    
+    fabric_canvas._objects.forEach(o => {
+      var object_id_type = typeof o.id;
+
+      if (object_id_type == 'object') {
+        if (o.id[0] == obj.id) {
+          o.set({
+            x1: obj.left,
+            y1: obj.top
+          })
+        }
+        if (o.id[1] == obj.id) {
+          o.set({
+            x2: obj.left,
+            y2: obj.top
+          })
+        }
+        
+      }
+    })
+  }
+
 }

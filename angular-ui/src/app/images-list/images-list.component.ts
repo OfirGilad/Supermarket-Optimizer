@@ -18,7 +18,7 @@ export class ImagesListComponent implements OnInit {
     this.imagesSerivce.getImages().subscribe((data: any)=>{
       this.listOfImages = [];
       for (let i = 0; i < data.length; i++) {
-        this.listOfImages.push(new ImageLink(data[i]["name"], data[i]["metadata"], data[i]["url"]))
+        this.listOfImages.push(new ImageLink(data[i]["name"], data[i]["metadata"], data[i]["url"], data[i]["products"]))
       }
       console.log("Received Collection from Firebase")
     })

@@ -19,10 +19,11 @@ export class ImageLinkComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  openCanvas(imagePath: string, metadataPath: string) {
+  openCanvas(imagePath: string, metadataPath: string, productsPath: string) {
     this.dataJSON = JSON.parse('{}');
     this.dataJSON['url'] = imagePath;
     this.dataJSON['metadata'] = metadataPath;
+    this.dataJSON['products'] = productsPath;
     this.imageCanvasEditingService.setImagePath(this.dataJSON);
   }
 }

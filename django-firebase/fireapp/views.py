@@ -66,12 +66,19 @@ def Images(request, id=0):
     if request.method == 'GET':
         images = database.child('Images').get().val()
         for image in images:
-          metadataURL = image['metadata']
-          try:
-            metadata = urllib.request.urlopen(metadataURL).read().decode('ascii')
-          except:
-            metadata = '{}'
-          image['metadata'] = metadata
+            metadataURL = image['metadata']
+            try:
+              metadata = urllib.request.urlopen(metadataURL).read().decode('ascii')
+            except:
+              metadata = '{}'
+            image['metadata'] = metadata
+
+            productsURL = image['products']
+            try:
+              products = urllib.request.urlopen(productsURL).read().decode('ascii')
+            except:
+              products = '{}'
+            image['products'] = products
 
         return JsonResponse(images, safe=False)
 

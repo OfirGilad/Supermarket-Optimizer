@@ -122,6 +122,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.CVFunction();
     this.CurrentClicked = "SelectStartingPoint";
     this.SelectStartingPointMode();
+    this.CurrentClicked = "EditPosition";
+    this.EditPositionsMode();
 
     this.LastClicked = "";
   }
@@ -528,16 +530,14 @@ export class ImageCanvasEditingComponent implements OnInit {
             }
             );
           console.log(connection)
-          this.connections_list.push(connection)
           this.fabric_canvas.add(connection);
+          this.connections_list.push(connection)
           
           this.fabric_canvas.on('object:moving', this.updateOnPointsMoving);
         }
 
         this.MetajsonTxt = JSON.stringify(json);
         this.MetaDataText.nativeElement.value = this.MetajsonTxt;
-
-        
 
         //this.SendMetaData() 
       }
@@ -592,7 +592,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
 
   // Buttons Implementation - START
-  EditAnnotationsMode() {
+  EditPositionsMode() {
     this.edit_in_progress = true
     this.disappearContext();
     if (this.CurrentClicked != "EditPosition") {
@@ -605,14 +605,14 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
     else {
       this.edit_in_progress = false
-      this.DisableEditAnnotationsMode()
+      this.DisableEditPositionsMode()
       this.CurrentClicked = "";
     }
   }
 
   edit_in_progress = false
 
-  DisableEditAnnotationsMode() {
+  DisableEditPositionsMode() {
     var json = JSON.parse(this.MetajsonTxt);
     let points = json["Points"];
     
@@ -624,6 +624,18 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
 
     console.log(this.points_list)
+    
+    for (let i = 0; i < this.points_list.length; i++) {
+      console.log(this.points_list)
+      console.log(points)
+
+      json.Points[i]['x'] = this.points_list[i].left;
+      json.Points[i]['y'] = this.points_list[i].top;
+      
+    }
+
+    this.MetajsonTxt = JSON.stringify(json);
+    this.MetaDataText.nativeElement.value = this.MetajsonTxt;
 
     //this.SendMetaData()
 
@@ -697,7 +709,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       // Disable Edit Mode
       this.edit_in_progress = false
-      this.DisableEditAnnotationsMode()
+      this.DisableEditPositionsMode()
       this.add_in_progress = false
       this.DisableAddConnectionsMode()
 
@@ -717,7 +729,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       // Disable Edit Mode
       this.edit_in_progress = false
-      this.DisableEditAnnotationsMode()
+      this.DisableEditPositionsMode()
       this.add_in_progress = false
       this.DisableAddConnectionsMode()
 
@@ -754,8 +766,12 @@ export class ImageCanvasEditingComponent implements OnInit {
         this.ctx = this.canvas.nativeElement.getContext('2d');
 
         //this.color_point(curr['x'], curr['y'], curr['color'], 10);
+        var point_id = this.points_counter;
+        this.points_counter += 1;
 
+        
         var point = new fabric.Circle({
+          id: point_id,
           radius: 10,
           fill: curr['color'],
           left: curr['x'],
@@ -780,26 +796,29 @@ export class ImageCanvasEditingComponent implements OnInit {
         let point2 = points[curr['t']];
 
         //this.drawLine(point1['x'], point1['y'], point2['x'], point2['y'], curr['color']);
+        var connection_id = [curr['s'], curr['t']];
+        this.connections_counter += 1;
 
         var connection = new fabric.Line(
           [
             point1['x'], point1['y'], point2['x'], point2['y']
           ],
           {
-              stroke: curr['color'],
-              strokeWidth: 2,
-              hasControls: false,
-              hasBorders: false,
-              selectable: false,
-              lockMovementX: true,
-              lockMovementY: true,
-              hoverCursor: "default",
-              originX: "center",
-              originY: "center"
+            id: connection_id,
+            stroke: curr['color'],
+            strokeWidth: 2,
+            hasControls: false,
+            hasBorders: false,
+            selectable: false,
+            lockMovementX: true,
+            lockMovementY: true,
+            hoverCursor: "default",
+            originX: "center",
+            originY: "center"
           }
           );
-          this.connections_list.push(connection)
           this.fabric_canvas.add(connection);
+          this.connections_list.push(connection)
       }
     }
   }
@@ -862,7 +881,6 @@ export class ImageCanvasEditingComponent implements OnInit {
       console.log("Metadata URL:", data);
       // window.location.reload();
     })
-    
   }
 
   DrawPoint() {
@@ -887,18 +905,33 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
 
   ClearAnnotations(deleteMetadata:boolean = true){
+    this.points_counter = 0;
+    this.connections_counter = 0;
+
+    this.points_list.forEach(point => {
+      this.fabric_canvas.remove(point);
+    });
+
+    this.connections_list.forEach(connection => {
+      this.fabric_canvas.remove(connection);
+    });
+
+    this.temp_points_list.forEach(temp_point => {
+      this.fabric_canvas.remove(temp_point);
+    });
+
+    this.points_list = []
+    this.connections_list = []
+    this.temp_points_list = []
+
     // this.OptionSelected(0)
 
     // Disable Edit Mode
-    // if (deleteMetadata == true) {
-    //   this.edit_in_progress = false
-    //   this.edit_annotations_mode_stage1 = false
-    //   this.edit_annotations_mode_stage2 = false
-
-    //   this.add_in_progress = false
-    //   this.add_connections_mode_stage1 = false
-    //   this.add_connections_mode_stage2 = false
-    // }
+    if (deleteMetadata == true) {
+      this.add_in_progress = false
+      this.add_connections_mode_stage1 = false
+      this.add_connections_mode_stage2 = false
+    }
 
     let LastMetadata = this.MetaDataText.nativeElement.value;
     this.disableOtherOptions()

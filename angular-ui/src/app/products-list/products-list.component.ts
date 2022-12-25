@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 
 @Component({
   selector: 'app-products-list',
@@ -7,9 +8,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProductsListComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private imageCanvasEditingService: ImageCanvasEditingService,
+  ) { }
+  
+  MetajsonTxt: string = "{}"
 
   ngOnInit(): void {
+    this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
+      
+      //this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
+      this.MetajsonTxt = newImageJSON['metadata'];
+      console.log(newImageJSON)
+      
+    })
   }
 
 }

@@ -884,11 +884,10 @@ export class ImageCanvasEditingComponent implements OnInit {
     if (this.CurrentClicked != "Point") {
 
       // Disable Edit Mode
-      // this.edit_in_progress = false
-      // this.DisableEditAnnotationsMode()
-
-      // this.add_in_progress = false
-      // this.DisableAddConnectionsMode()
+      this.edit_in_progress = false
+      this.DisableEditPositionsMode()
+      this.add_in_progress = false
+      this.DisableAddConnectionsMode()
 
       this.CurrentClicked = "Point";
       this.disableOtherOptions()
@@ -976,15 +975,15 @@ export class ImageCanvasEditingComponent implements OnInit {
     e.stopPropagation();
   }
 
-  drawLine(x1, y1, x2, y2, color='black') {
-    this.ctx = this.canvas.nativeElement.getContext('2d');
-    //console.log(x1,y1,x2,y2)
-    this.ctx.beginPath();
-    this.ctx.moveTo(x1, y1);
-    this.ctx.lineTo(x2, y2);
-    this.ctx.strokeStyle = color;
-    this.ctx.stroke();
-  }
+  // drawLine(x1, y1, x2, y2, color='black') {
+  //   this.ctx = this.canvas.nativeElement.getContext('2d');
+  //   //console.log(x1,y1,x2,y2)
+  //   this.ctx.beginPath();
+  //   this.ctx.moveTo(x1, y1);
+  //   this.ctx.lineTo(x2, y2);
+  //   this.ctx.strokeStyle = color;
+  //   this.ctx.stroke();
+  // }
 
   color_point(x, y, color='black', radius=5) {
     var point = new fabric.Circle({

@@ -3,6 +3,7 @@ import { fromEvent, pairwise, switchMap, takeUntil } from 'rxjs';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { OpenCVService } from '../opencv.service';
 import { MetadataService } from '../metadata.service';
+import { fabric } from 'fabric';
 
 @Component({
   selector: 'app-image-canvas-editing',
@@ -19,6 +20,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<HTMLCanvasElement>;  
+  fabric_canvas: any;
 
   private ctx: CanvasRenderingContext2D;
   image = new Image();
@@ -33,9 +35,12 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   ngOnInit(): void {
     // Clean Canvas
-    this.ctx = this.canvas.nativeElement.getContext('2d');
-    this.image.src = "";
-    this.ctx.drawImage(this.image, 0, 0);
+    // this.ctx = this.canvas.nativeElement.getContext('2d');
+    // this.image.src = "";
+    // this.ctx.drawImage(this.image, 0, 0);
+
+    this.fabric_canvas = new fabric.Canvas('canvas');
+    this.fabric_canvas.clear();
 
     // Get notify on image recived
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
@@ -45,22 +50,37 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
       this.MetajsonTxt = newImageJSON['metadata'];
 
-      img.onload = () => {
-        this.canvas.nativeElement.width = img.width;
-        this.canvas.nativeElement.height = img.height;
-        this.ctx = this.canvas.nativeElement.getContext('2d');
-        this.ctx.clearRect(0, 0, img.width, img.height);
-        this.ctx.drawImage(img, 0, 0);
+      var fabric_canvas = this.fabric_canvas;
+      fabric_canvas.clear();
+      
+      fabric_canvas.setBackgroundImage(img.src, fabric_canvas.renderAll.bind(fabric_canvas), {
+        backgroundImageOpacity: 1,      
+      });
 
-        this.currentImagePath = newImageJSON['url']
+      fabric_canvas.setWidth(img.width);
+      fabric_canvas.setHeight(img.height);
+
+      this.menuArea.nativeElement.style.width = img.width + 'px';
+      this.menuArea.nativeElement.style.height = img.height + 'px';
+
+      this.SendMetaData();
+
+      // img.onload = () => {
+      //   this.canvas.nativeElement.width = img.width;
+      //   this.canvas.nativeElement.height = img.height;
+      //   this.ctx = this.canvas.nativeElement.getContext('2d');
+      //   this.ctx.clearRect(0, 0, img.width, img.height);
+      //   this.ctx.drawImage(img, 0, 0);
+
+      //   this.currentImagePath = newImageJSON['url']
         
-        this.menuArea.nativeElement.style.width = img.width + 'px';
-        this.menuArea.nativeElement.style.height = img.height + 'px';
+      //   this.menuArea.nativeElement.style.width = img.width + 'px';
+      //   this.menuArea.nativeElement.style.height = img.height + 'px';
 
-        this.SendMetaData();
-      }
+      //   this.SendMetaData();
+      // }
+
     })
-    
   }
 
   @ViewChild('cvInput') cvInput;
@@ -77,6 +97,8 @@ export class ImageCanvasEditingComponent implements OnInit {
   LastClicked: string = "";
   
   points_counter: number = 0;
+  points_list = []
+  connections_list = []
 
   // For Point
   point_x: number = 0;
@@ -216,7 +238,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       this.point_x = e.clientX - rect.left
       this.point_y = e.clientY - rect.top
-      this.color_point(this.point_x, this.point_y, 'black', 10)
+      //this.color_point(this.point_x, this.point_y, 'black', 10)
 
       var json = JSON.parse(this.MetajsonTxt);
       var line = json.Points;
@@ -226,6 +248,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       json.Points.push({"x": this.point_x, "y": this.point_y, "color": "black", "products": []})
       this.MetajsonTxt = JSON.stringify(json);
       this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+      this.DrawMetaData();
     }
 
 
@@ -506,21 +529,34 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   // Buttons Implementation - START
   EditAnnotationsMode() {
+    var json = JSON.parse(this.MetajsonTxt);
+    let points = json["Points"];
+    
+    let curr = [];   
+
+    // Check Points
+    if (points != null) {
+      for (let i = 0; i < this.points_list.length; i++) {
+        this.points_list[i].selectable = true;
+      }
+    }
+
+
     this.edit_in_progress = true
     this.disappearContext();
-    if (this.CurrentClicked != "EditPosition") {
+    // if (this.CurrentClicked != "EditPosition") {
 
-      // Enable Edit Mode
-      this.CurrentClicked = "EditPosition";
-      this.disableOtherOptions()
-      this.CurrentClicked = "EditPosition";
-    }
-    else {
-      this.edit_in_progress = false
-      this.DisableEditAnnotationsMode()
-      this.CurrentClicked = "";
-      //this.ClearAnnotations(false)
-    }
+    //   // Enable Edit Mode
+    //   this.CurrentClicked = "EditPosition";
+    //   this.disableOtherOptions()
+    //   this.CurrentClicked = "EditPosition";
+    // }
+    // else {
+    //   this.edit_in_progress = false
+    //   this.DisableEditAnnotationsMode()
+    //   this.CurrentClicked = "";
+    //   //this.ClearAnnotations(false)
+    // }
   }
 
   edit_in_progress = false
@@ -652,7 +688,20 @@ export class ImageCanvasEditingComponent implements OnInit {
         curr = points[i];
         this.ctx = this.canvas.nativeElement.getContext('2d');
 
-        this.color_point(curr['x'], curr['y'], curr['color'], 10);
+        //this.color_point(curr['x'], curr['y'], curr['color'], 10);
+
+        var point = new fabric.Circle({
+          radius: 10,
+          fill: curr['color'],
+          left: curr['x'],
+          top: curr['y'],
+          selectable: false,
+          originX: "center",
+          originY: "center",
+          hoverCursor: "auto"
+        });
+        this.fabric_canvas.add(point);
+        this.points_list.push(point);
       }
     }
 
@@ -665,7 +714,27 @@ export class ImageCanvasEditingComponent implements OnInit {
         let point1 = points[curr['s']];
         let point2 = points[curr['t']];
 
-        this.drawLine(point1['x'], point1['y'], point2['x'], point2['y'], curr['color']);
+        //this.drawLine(point1['x'], point1['y'], point2['x'], point2['y'], curr['color']);
+
+        var connection = new fabric.Line(
+          [
+            point1['x'], point1['y'], point2['x'], point2['y']
+          ],
+          {
+              stroke: curr['color'],
+              strokeWidth: 2,
+              hasControls: false,
+              hasBorders: false,
+              selectable: false,
+              lockMovementX: true,
+              lockMovementY: true,
+              hoverCursor: "default",
+              originX: "center",
+              originY: "center"
+          }
+          );
+          this.connections_list.push(connection)
+          this.fabric_canvas.add(connection);
       }
     }
   }
@@ -772,12 +841,12 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.ctx = this.canvas.nativeElement.getContext('2d');
 
     // Prevent CV returned image from being deleted
-    if(this.cv_call_image == false) {
-      this.ctx.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    }
+    // if(this.cv_call_image == false) {
+    //   this.ctx.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+    // }
     
-    this.image.src = this.currentImagePath;
-    this.ctx.drawImage(this.image, 0, 0);
+    //this.image.src = this.currentImagePath;
+    //this.ctx.drawImage(this.image, 0, 0);
 
     try{
       JSON.parse(LastMetadata);

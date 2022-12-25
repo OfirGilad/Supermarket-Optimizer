@@ -17,7 +17,7 @@
 </form>
 
 <div #area class="menu-area" (contextmenu)="contextMenu($event)" (click)="OnClick($event)">
-  <canvas #canvas width="1000" height="600"></canvas>
+  <canvas #canvas id="canvas" width="1000" height="600"></canvas>
     <div class="customContext" (click)="stopPropagation($event)" #menu>
       <ul>
         <li (click)="EditAnnotationsMode()">Edit Position</li>

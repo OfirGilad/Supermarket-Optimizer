@@ -43,6 +43,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     this.fabric_canvas = new fabric.Canvas('canvas');
     this.fabric_canvas.clear();
+    this.fabric_canvas.selection = false; // disable group selection
 
     // Get notify on image recived
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
@@ -122,27 +123,16 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.CVFunction();
     this.CurrentClicked = "SelectStartingPoint";
     this.SelectStartingPointMode();
-    this.CurrentClicked = "EditPosition";
-    this.EditPositionsMode();
 
     this.LastClicked = "";
   }
 
 
   // EditPosition - Modes
-  edit_annotations_mode_stage1: boolean = false
-  edit_annotations_mode_stage2: boolean = false
-  move_all_points: boolean = false
-
+  edit_positions_mode_stage1: boolean = false
   
   // AddConnection - Modes
   add_connections_mode_stage1: boolean = false
-  add_connections_mode_stage2: boolean = false
-
-  
-  // SelectStartingPoint - Modes
-  select_starting_point_mode_stage1: boolean = false
-  select_starting_point_mode_stage2: boolean = false
 
 
   OnClick(e: any) {
@@ -299,13 +289,13 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   contextMenu(e: any){
     e.preventDefault();
-    if (this.edit_annotations_mode_stage2 == false) {
+    if (this.edit_positions_mode_stage1 == false) {
       this.menu.nativeElement.style.display = "block";
       this.menu.nativeElement.style.top = e.pageY + "px";
       this.menu.nativeElement.style.left = e.pageX + "px";
     }
 
-    if (this.add_connections_mode_stage2 == false) {
+    if (this.add_connections_mode_stage1 == false) {
       this.menu.nativeElement.style.display = "block";
       this.menu.nativeElement.style.top = e.pageY + "px";
       this.menu.nativeElement.style.left = e.pageX + "px";
@@ -586,7 +576,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       this.MetajsonTxt = JSON.stringify(json);
       this.MetaDataText.nativeElement.value = this.MetajsonTxt;
-      //this.SendMetaData() 
+      this.SendMetaData() 
     }
   }
 
@@ -597,7 +587,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.disappearContext();
     if (this.CurrentClicked != "EditPosition") {
 
-      // Enable Edit Mode
+      // Enable Mode
       this.CurrentClicked = "EditPosition";
       this.disableOtherOptions()
       this.CurrentClicked = "EditPosition";
@@ -613,6 +603,8 @@ export class ImageCanvasEditingComponent implements OnInit {
   edit_in_progress = false
 
   DisableEditPositionsMode() {
+    this.fabric_canvas.discardActiveObject().renderAll();
+    
     var json = JSON.parse(this.MetajsonTxt);
     let points = json["Points"];
     
@@ -647,9 +639,13 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.disappearContext();
     if (this.CurrentClicked != "AddConnection") {
 
-      // Enable Edit Mode
+      // Enable Mode
       this.CurrentClicked = "AddConnection";
       this.disableOtherOptions()
+
+      // Disable Other Modes
+      this.DisableEditPositionsMode();
+
       this.CurrentClicked = "AddConnection";
     }
     else {
@@ -665,9 +661,15 @@ export class ImageCanvasEditingComponent implements OnInit {
   DisableAddConnectionsMode() {
     if (this.add_connections_mode_stage1 == true && this.add_in_progress == false) {
       this.add_connections_mode_stage1 = false
-      this.add_connections_mode_stage2 = false
+      //this.add_connections_mode_stage2 = false
       //this.SendMetaData()
     }
+
+    // Empty red point
+    for (let i = 0; i < this.temp_points_list.length; i++) {
+      this.fabric_canvas.remove(this.temp_points_list[i])
+    }
+    this.temp_points_list = []
   }
 
 
@@ -677,7 +679,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.disappearContext();
     if (this.CurrentClicked != "SelectStartingPoint") {
 
-      // Enable Edit Mode
+      // Enable Mode
       this.CurrentClicked = "SelectStartingPoint";
       this.disableOtherOptions()
       this.CurrentClicked = "SelectStartingPoint";
@@ -922,9 +924,12 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     // Disable Edit Mode
     if (deleteMetadata == true) {
+      this.edit_in_progress = false
+      this.edit_positions_mode_stage1 = false
+
       this.add_in_progress = false
       this.add_connections_mode_stage1 = false
-      this.add_connections_mode_stage2 = false
+      //this.add_connections_mode_stage2 = false
     }
 
     let LastMetadata = this.MetaDataText.nativeElement.value;

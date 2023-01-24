@@ -86,6 +86,9 @@ export class ImageCanvasEditingComponent implements OnInit {
       // }
 
     })
+
+    // Add events
+    this.fabric_canvas.on('object:moving', this.updateOnPointsMoving);
   }
 
   @ViewChild('cvInput') cvInput;
@@ -518,12 +521,10 @@ export class ImageCanvasEditingComponent implements OnInit {
               originX: "center",
               originY: "center"
             }
-            );
+          );
           console.log(connection)
           this.fabric_canvas.add(connection);
-          this.connections_list.push(connection)
-          
-          this.fabric_canvas.on('object:moving', this.updateOnPointsMoving);
+          this.connections_list.push(connection);
         }
 
         this.MetajsonTxt = JSON.stringify(json);

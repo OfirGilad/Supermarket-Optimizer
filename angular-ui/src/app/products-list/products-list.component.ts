@@ -29,7 +29,16 @@ export class ProductsListComponent implements OnInit {
       console.log(this.ProductsjsonTxt)
 
       var json = JSON.parse(this.ProductsjsonTxt);
-      
+
+      // Sort products alphabetically
+      json = Object.keys(json).sort().reduce(
+        (obj, key) => { 
+          obj[key] = json[key]; 
+          return obj;
+        }, 
+        {}
+      );
+
       this.listOfProducts =[]
       this.productIndex = 0;
 
@@ -37,8 +46,8 @@ export class ProductsListComponent implements OnInit {
         this.listOfProducts.push({name: key, value: this.productIndex, checked: false})
         this.productIndex++;
       }
-      
-      this.addButton.nativeElement.style.display = "block";
+
+      //this.addButton.nativeElement.style.display = "block";
       this.findButton.nativeElement.style.display = "block";
     })
   }
@@ -57,8 +66,9 @@ export class ProductsListComponent implements OnInit {
     selectedProducts['products'] = []
 
     for (let i = 0; i < this.listOfProducts.length; i++) {
-      if (this.listOfProducts[i].checked == true)
-      selectedProducts['products'].push(this.listOfProducts[i].name)
+      if (this.listOfProducts[i].checked == true) {
+        selectedProducts['products'].push(this.listOfProducts[i].name)
+      }
     }
 
     this.productsListService.setProducts(selectedProducts)

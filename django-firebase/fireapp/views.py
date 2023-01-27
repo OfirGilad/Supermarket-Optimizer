@@ -68,16 +68,16 @@ def Images(request, id=0):
         for image in images:
             metadataURL = image['metadata']
             try:
-              metadata = urllib.request.urlopen(metadataURL).read().decode('ascii')
+                metadata = urllib.request.urlopen(metadataURL).read().decode('ascii')
             except:
-              metadata = '{}'
+                metadata = '{}'
             image['metadata'] = metadata
 
             productsURL = image['products']
             try:
-              products = urllib.request.urlopen(productsURL).read().decode('ascii')
+                products = urllib.request.urlopen(productsURL).read().decode('ascii')
             except:
-              products = '{}'
+                products = '{}'
             image['products'] = products
 
         return JsonResponse(images, safe=False)
@@ -110,6 +110,26 @@ def SaveMetadata(request, id=0):
             i += 1
 
         return JsonResponse(MetadataURL, safe=False)
+
+
+@csrf_exempt
+def FindPath(request, id=0):
+    if request.method == 'POST':
+        params = request.body.decode()
+        params = json.loads(params)
+
+        connections = params["Connections"]
+        points = params["Points"]
+        products = params["Products"]
+
+        solution = params
+        del solution["Products"]
+
+        ### Add Full Algorithm
+        for i in range(len(connections)):
+            solution["Connections"][i]['color'] = 'blue'
+
+        return JsonResponse(solution, safe=False)
 
 
 # @csrf_exempt

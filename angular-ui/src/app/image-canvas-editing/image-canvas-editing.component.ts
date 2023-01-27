@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { ProductsListService } from '../products-list.service';
-import { OpenCVService } from '../opencv.service';
+import { FindPathService } from '../find-path.service';
 import { MetadataService } from '../metadata.service';
 import { fabric } from 'fabric';
 
@@ -19,7 +19,7 @@ export class ImageCanvasEditingComponent implements OnInit {
   constructor(
     private imageCanvasEditingService: ImageCanvasEditingService,
     private productsListService: ProductsListService,
-    private openCVService: OpenCVService,
+    private findPathService: FindPathService,
     private metadataService: MetadataService,
   ) { }
 
@@ -90,10 +90,11 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     // Get notify on find path command
     this.productsListService.requestPathEvent.subscribe((productsJSON: JSON) => {
-      console.log(productsJSON)
-      //console.log(this.MetajsonTxt)
+      var findPathJSON = JSON.parse(this.MetajsonTxt)
+      findPathJSON['Products'] = productsJSON["products"]
 
       // Add call for backend
+      this.FindPathCall(findPathJSON)
     })
 
     // Add events
@@ -131,8 +132,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.DrawPoint();
     this.CurrentClicked = "Metadata";
     this.CallMetaData();
-    this.CurrentClicked = "OpenCV";
-    this.CVFunction();
+    // this.CurrentClicked = "OpenCV";
+    // this.CVFunction();
     this.CurrentClicked = "SelectStartingPoint";
     this.SelectStartingPointMode();
 
@@ -236,15 +237,15 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
 
 
-    else if (this.CurrentClicked == "OpenCV"){
-      this.disableOtherOptions()
-      this.CurrentClicked = "OpenCV";
+    // else if (this.CurrentClicked == "OpenCV"){
+    //   this.disableOtherOptions()
+    //   this.CurrentClicked = "OpenCV";
 
-      this.textToCV.nativeElement.value = "{}";
-      this.cvInput.nativeElement.style.display = "block";
-      this.cvInput.nativeElement.style.top = e.pageY + "px";
-      this.cvInput.nativeElement.style.left = e.pageX + "px";
-    }
+    //   this.textToCV.nativeElement.value = "{}";
+    //   this.cvInput.nativeElement.style.display = "block";
+    //   this.cvInput.nativeElement.style.top = e.pageY + "px";
+    //   this.cvInput.nativeElement.style.left = e.pageX + "px";
+    // }
 
 
     else if (this.CurrentClicked == "Point"){
@@ -708,26 +709,26 @@ export class ImageCanvasEditingComponent implements OnInit {
   ////
   
 
-  CVFunction() {
-    this.disappearContext();
-    if (this.CurrentClicked != "OpenCV") {
-      // this.OptionSelected(3)
+  // CVFunction() {
+  //   this.disappearContext();
+  //   if (this.CurrentClicked != "OpenCV") {
+  //     // this.OptionSelected(3)
 
-      // Disable Edit Mode
-      this.edit_in_progress = false
-      this.DisableEditPositionsMode()
-      this.add_in_progress = false
-      this.DisableAddConnectionsMode()
+  //     // Disable Edit Mode
+  //     this.edit_in_progress = false
+  //     this.DisableEditPositionsMode()
+  //     this.add_in_progress = false
+  //     this.DisableAddConnectionsMode()
 
-      this.CurrentClicked = "OpenCV";
-      this.disableOtherOptions()
-      this.CurrentClicked = "OpenCV";
-    }
-    else {
-      this.CurrentClicked = "";
-      this.cvInput.nativeElement.style.display = "none";
-    }
-  }
+  //     this.CurrentClicked = "OpenCV";
+  //     this.disableOtherOptions()
+  //     this.CurrentClicked = "OpenCV";
+  //   }
+  //   else {
+  //     this.CurrentClicked = "";
+  //     this.cvInput.nativeElement.style.display = "none";
+  //   }
+  // }
 
   CallMetaData(){
     this.disappearContext();
@@ -831,40 +832,27 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   @ViewChild('FunctionTextToCV') functionTextToCV;
 
-  @ViewChild('TextToCV') textToCV;
-  CVjsonText: string = '{}'
+  // @ViewChild('TextToCV') textToCV;
+  // CVjsonText: string = '{}'
 
-  cv_call_image: boolean = false
+  //cv_call_image: boolean = false
 
-  async OpenCVCall(){
-    this.CVjsonText = this.textToCV.nativeElement.value
+  async FindPathCall(jsonParams: JSON){
+    console.log("Sent Json: ", jsonParams)
 
-    var jsonParams = JSON.parse(this.CVjsonText)
-    jsonParams['url'] = this.currentImagePath
+    //this.cv_call_image = true
 
-    var selectedFunction = this.functionTextToCV.nativeElement;
-    jsonParams['method'] = selectedFunction.options[selectedFunction.selectedIndex].value;
-    
-    console.log("Sent Json:", jsonParams)
+    this.findPathService.getFindPathResult(jsonParams).subscribe((data: any)=>{
+      console.log("Solution Json: ", data);
 
-    this.cv_call_image = true
+      this.MetaDataText.nativeElement.value = JSON.stringify(data)
 
-    this.openCVService.getOpenCVResult(jsonParams).subscribe((data: any)=>{
-      // console.log(data);
-      var ctx = this.canvas.nativeElement.getContext('2d');
-      var image = new Image();
-
-      image.onload = () => {
-          ctx.drawImage(image, 0, 0);
-      }
-      image.src = data;
-      this.currentImagePath = data
-      this.cvInput.nativeElement.style.display = "none";
+      this.SendMetaData()
     })
 
     // Set waiting to draw annotation after CV function results
-    await this.sleep(10000);
-    this.SendMetaData()
+    //await this.sleep(10000);
+    //this.SendMetaData()
   }
 
   sleep(ms) {

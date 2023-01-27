@@ -1,4 +1,4 @@
-<form #cvInput class="openCVContext">
+<!-- <form #cvInput class="openCVContext">
   <label class="cvBoxText" for="fname">OpenCV Function:</label>
   <select #FunctionTextToCV name="cvFunction" id="cvFunction">
     <option value="GrayImage">Gray Image</option>
@@ -8,7 +8,7 @@
   <label class="cvBoxText" for="fname">Function Parameters:</label>
   <textarea #TextToCV class="cvBoxTextArea" name="TextArea" cols="25" rows="5"></textarea>
   <input type="button" value="Send" (click)="OpenCVCall()">
-</form>
+</form> -->
 
 <form #MetaData class="MetaDataContext">
   <label class="MetaBoxText" for="fname">MetaData Editor:</label>
@@ -27,7 +27,7 @@
 
         <li (click)="SelectStartingPointMode()">Starting Point</li>
 
-        <li (click)="CVFunction()">Find Path</li>
+        <!-- <li (click)="CVFunction()">Find Path</li> -->
         
         <li (click)="DrawPoint()">Point</li>
         <li (click)="CallMetaData()">Edit Metadata</li>

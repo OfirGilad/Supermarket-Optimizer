@@ -132,6 +132,41 @@ def FindPath(request, id=0):
         return JsonResponse(solution, safe=False)
 
 
+# Sol from web - in progress
+from itertools import permutations
+import math
+
+def TSP(data):
+    start_vertex = None
+    vertices = data["Vertices"]
+    edges = data["Edges"]
+    products_list = data["ProductsList"]
+    product_vertices = []
+    for vertex in vertices:
+        if vertex["color"] == "green":
+            start_vertex = vertex
+        for product in products_list:
+            if product in vertex["products"]:
+                product_vertices.append(vertex)
+    min_distance = math.inf
+    min_path = None
+    for path in permutations(product_vertices):
+        path = list(path)
+        path.insert(0, start_vertex)
+        path.append(start_vertex)
+        distance = 0
+        for i in range(len(path)-1):
+            for edge in edges:
+                if (edge["s"] == path[i]["x"] and edge["t"] == path[i+1]["x"]) or (edge["s"] == path[i+1]["x"] and edge["t"] == path[i]["x"]):
+                    distance += edge["weight"]
+                    if edge["color"] != "blue":
+                        edge["color"] = "blue"
+                    break
+        if distance < min_distance:
+            min_distance = distance
+            min_path = path
+    return min_path
+
 # @csrf_exempt
 # def OpenCVHandler(request, id=0):
 #     if request.method == 'POST':

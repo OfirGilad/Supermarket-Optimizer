@@ -14,6 +14,7 @@ export class ProductsListComponent implements OnInit {
   
   listOfProducts = []
   ProductsjsonTxt: string = "{}"
+  productIndex = 0
 
   ngOnInit(): void {
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
@@ -25,10 +26,18 @@ export class ProductsListComponent implements OnInit {
       var json = JSON.parse(this.ProductsjsonTxt);
       
       this.listOfProducts =[]
+      this.productIndex = 0;
+
       for (let key in json) {
-        this.listOfProducts.push(key)
+        this.listOfProducts.push({name: key, value: this.productIndex, checked: false})
+        this.productIndex++;
       }
     })
+  }
+
+  updateCheckedProduct(product, event) {
+    this.listOfProducts[product.value].checked = event.target.checked;
+    //console.log(this.listOfProducts)
   }
 
   addProduct(){

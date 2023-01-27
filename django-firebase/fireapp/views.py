@@ -138,9 +138,9 @@ import math
 
 def TSP(data):
     start_vertex = None
-    vertices = data["Vertices"]
-    edges = data["Edges"]
-    products_list = data["ProductsList"]
+    vertices = data["Points"]
+    edges = data["Connections"]
+    products_list = data["Products"]
     product_vertices = []
     for vertex in vertices:
         if vertex["color"] == "green":

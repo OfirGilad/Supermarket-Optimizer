@@ -988,7 +988,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   color_point(x, y, color='black', radius=5) {
     var point = new fabric.Circle({
-      radius: 5,
+      radius: radius,
       fill: color,
       left: x,
       top: y,

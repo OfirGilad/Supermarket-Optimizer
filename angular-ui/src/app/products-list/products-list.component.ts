@@ -37,6 +37,9 @@ export class ProductsListComponent implements OnInit {
         this.listOfProducts.push({name: key, value: this.productIndex, checked: false})
         this.productIndex++;
       }
+      
+      this.addButton.nativeElement.style.display = "block";
+      this.findButton.nativeElement.style.display = "block";
     })
   }
 
@@ -59,6 +62,5 @@ export class ProductsListComponent implements OnInit {
     }
 
     this.productsListService.setProducts(selectedProducts)
-    console.log(selectedProducts)
   }
 }

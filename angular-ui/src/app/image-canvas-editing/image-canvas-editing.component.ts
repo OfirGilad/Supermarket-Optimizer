@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { fromEvent, pairwise, switchMap, takeUntil } from 'rxjs';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
+import { ProductsListService } from '../products-list.service';
 import { OpenCVService } from '../opencv.service';
 import { MetadataService } from '../metadata.service';
 import { fabric } from 'fabric';
@@ -18,6 +18,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   constructor(
     private imageCanvasEditingService: ImageCanvasEditingService,
+    private productsListService: ProductsListService,
     private openCVService: OpenCVService,
     private metadataService: MetadataService,
   ) { }
@@ -85,6 +86,14 @@ export class ImageCanvasEditingComponent implements OnInit {
       //   this.SendMetaData();
       // }
 
+    })
+
+    // Get notify on find path command
+    this.productsListService.requestPathEvent.subscribe((productsJSON: JSON) => {
+      console.log(productsJSON)
+      //console.log(this.MetajsonTxt)
+
+      // Add call for backend
     })
 
     // Add events

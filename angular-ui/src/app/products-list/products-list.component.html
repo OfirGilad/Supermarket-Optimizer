@@ -12,8 +12,8 @@
       </a>
 
       <b>
-        <input class="addButton" type="submit" value="Add Product" (click)="addProduct()">
-        <input class="findButton" type="submit" value="Find Path" (click)="findPath()">
+        <input #addButton type="submit" value="Add Product" (click)="addProduct()" hidden>
+        <input #findButton type="submit" value="Find Path" (click)="findPath()" hidden>
       </b>
     </div>
   </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { ProductsListService } from '../products-list.service';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Component({
   selector: 'app-products-list',
@@ -16,6 +17,8 @@ export class ProductsListComponent implements OnInit {
   
   @ViewChild('addButton') addButton;
   @ViewChild('findButton') findButton;
+
+  filterValue: string;
 
   listOfProducts = []
   ProductsjsonTxt: string = "{}"
@@ -74,3 +77,18 @@ export class ProductsListComponent implements OnInit {
     this.productsListService.setProducts(selectedProducts)
   }
 }
+
+// Filter class
+@Pipe({
+  name: 'filter'
+})
+
+export class FilterPipe implements PipeTransform {
+  transform(items: any[], filter: string): any {
+    if (!items || !filter) {
+      return items;
+    }
+    return items.filter(item => item.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
+  }
+}
+

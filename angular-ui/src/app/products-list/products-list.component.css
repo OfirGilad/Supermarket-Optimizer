@@ -31,4 +31,9 @@
     display: block;
     background-color: rgba(17, 17, 17, 0.5);
   }
+
+  .form-control {
+    margin-left: 10px; /* adjust the value as needed */
+    width: 180px;
+  }
   

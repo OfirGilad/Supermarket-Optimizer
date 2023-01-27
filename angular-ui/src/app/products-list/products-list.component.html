@@ -1,20 +1,28 @@
 <div class="main">
-    <div class="productnav">
-      <h1 align="center">Product List</h1>
-      <a *ngFor="let product of listOfProducts">
-        <label>
-          <input type="checkbox" 
-                 name="products" 
-                 value={{product.value}}
-                 (change)="updateCheckedProduct(product, $event)"/>
-          {{product.name}}
-        </label>
-      </a>
+  <div class="productnav">
+    <h1 align="center">Product List</h1>
 
-      <b>
-        <input #addButton type="submit" value="Add Product" (click)="addProduct()" hidden>
-        <input #findButton type="submit" value="Find Path" (click)="findPath()" hidden>
-      </b>
-    </div>
+    <!-- <input class="form-control" id="search-text" aria-describedby="search-text" 
+    placeholder="Enter text to search" autofocus> -->
+    <form>
+      <input type="text" [(ngModel)]="filterValue" name="filterValue" class="form-control">
+    </form>
+    
+
+    <a *ngFor="let product of listOfProducts | filter:filterValue">
+      <label>
+        <input type="checkbox" 
+                name="products" 
+                value={{product.value}}
+                (change)="updateCheckedProduct(product, $event)"/>
+        {{product.name}}
+      </label>
+    </a>
+
+    <b>
+      <input #addButton type="submit" value="Add Product" (click)="addProduct()" hidden>
+      <input #findButton type="submit" value="Find Path" (click)="findPath()" hidden>
+    </b>
   </div>
+</div>
   

@@ -288,6 +288,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       // Add Tooltip
       var tooltip = new fabric.Text('', {
+        id: [-1, point.id],
         fontFamily: 'Arial',
         fontSize: 20,
         left: point.left + 10,
@@ -310,7 +311,9 @@ export class ImageCanvasEditingComponent implements OnInit {
         tooltip.set('opacity', 0);
       });
 
-      this.all_tooltips.push(tooltip)
+      this.tooltips_list.push(tooltip)
+
+      console.log(this.tooltips_list)
     }
     else {
       this.textInput.nativeElement.style.display = "none";
@@ -785,7 +788,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.DrawMetaData();
   }
 
-  all_tooltips = []
+  tooltips_list = []
 
   DrawMetaData(){
     var json = JSON.parse(this.MetajsonTxt);
@@ -823,6 +826,7 @@ export class ImageCanvasEditingComponent implements OnInit {
         
         // Add Tooltip
         var tooltip = new fabric.Text('', {
+          id: [-1, i],
           fontFamily: 'Arial',
           fontSize: 20,
           left: point.left + 10,
@@ -848,7 +852,7 @@ export class ImageCanvasEditingComponent implements OnInit {
         });
       }
 
-      this.all_tooltips = tooltips_list
+      this.tooltips_list = tooltips_list
     }
 
     // Draw Connections
@@ -958,6 +962,10 @@ export class ImageCanvasEditingComponent implements OnInit {
   ClearAnnotations(deleteMetadata:boolean = true){
     this.points_counter = 0;
     this.connections_counter = 0;
+
+    this.tooltips_list.forEach(tooltip => {
+      this.fabric_canvas.remove(tooltip);
+    });
 
     this.points_list.forEach(point => {
       this.fabric_canvas.remove(point);

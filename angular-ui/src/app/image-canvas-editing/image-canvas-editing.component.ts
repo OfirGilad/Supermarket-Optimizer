@@ -1083,7 +1083,7 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
 
 
-  // Update line according to current point location
+  // Update line + tooltip according to current point location
   updateOnPointsMoving(o) {
     let obj = o.target;
     var fabric_canvas = obj.canvas;
@@ -1092,6 +1092,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       var object_id_type = typeof o.id;
 
       if (object_id_type == 'object') {
+        // line update
         if (o.id[0] == obj.id) {
           o.set({
             x1: obj.left,
@@ -1104,8 +1105,17 @@ export class ImageCanvasEditingComponent implements OnInit {
             y2: obj.top
           })
         }
+
+        // tooltip update
+        if (o.id[0] == -1) {
+          if (o.id[1] == obj.id) {
+            o.set({
+              left: obj.left + 10,
+              top: obj.top
+            })
+          }
+        }
       }
     })
   }
-
 }

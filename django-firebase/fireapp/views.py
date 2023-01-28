@@ -118,56 +118,93 @@ def FindPath(request, id=0):
         params = request.body.decode()
         params = json.loads(params)
 
-        connections = params["Connections"]
-        points = params["Points"]
-        products = params["Products"]
-
         solution = params
-        #del solution["Products"]
-
-        print(TSP(params))
-
-        ### Add Full Algorithm
-        for i in range(len(connections)):
-            solution["Connections"][i]['color'] = 'blue'
+        solution["Connections"] = get_shortest_path(solution)
+        del solution["Products"]
 
         return JsonResponse(solution, safe=False)
 
 
-# Sol from web - in progress
-from itertools import permutations
-import math
+# Sol from web
+import heapq
 
-def TSP(data):
-    start_vertex = None
-    vertices = data["Points"]
-    edges = data["Connections"]
-    products_list = data["Products"]
-    product_vertices = []
+
+# Helper function to find the vertex with the given product in its metadata
+def find_vertex_with_product(product, vertices):
     for vertex in vertices:
-        if vertex["color"] == "green":
-            start_vertex = vertex
-        for product in products_list:
-            if product in vertex["products"]:
-                product_vertices.append(vertex)
-    min_distance = math.inf
-    min_path = None
-    for path in permutations(product_vertices):
-        path = list(path)
-        path.insert(0, start_vertex)
-        path.append(start_vertex)
-        distance = 0
-        for i in range(len(path)-1):
-            for edge in edges:
-                if (edge["s"] == path[i]["x"] and edge["t"] == path[i+1]["x"]) or (edge["s"] == path[i+1]["x"] and edge["t"] == path[i]["x"]):
-                    distance += edge["weight"]
-                    if edge["color"] != "blue":
-                        edge["color"] = "blue"
-                    break
-        if distance < min_distance:
-            min_distance = distance
-            min_path = path
-    return min_path
+        if product in vertex['products']:
+            return vertex
+    return None
+
+
+# Helper function to get the weight of an edge
+def get_edge_weight(edge, vertices):
+    v1 = vertices[edge['s']]
+    v2 = vertices[edge['t']]
+    return ((v1['x'] - v2['x']) ** 2 + (v1['y'] - v2['y']) ** 2) ** 0.5
+
+
+def get_shortest_path(data):
+    # Extract input data
+    vertices = data['Points']
+    edges = data['Connections']
+    products_list = data['Products']
+
+    start_vertex = None
+    # Find the starting and ending vertex for the path
+    for i in range(len(vertices)):
+        vertices[i]["index"] = i
+        if vertices[i]["color"] == "green":
+            start_vertex = vertices[i]
+
+    #start_vertex = find_vertex_with_product(products_list[0], vertices)
+    end_vertex = find_vertex_with_product(products_list[-1], vertices)
+
+    # Initialize the heap and distances dictionary
+    heap = [(0, start_vertex['index'])]
+    distances = {vertex['index']: float('inf') for vertex in vertices}
+    distances[start_vertex['index']] = 0
+
+    # Initialize the previous dictionary to store the previous vertex for each vertex
+    previous = {vertex['index']: None for vertex in vertices}
+
+    while heap:
+        # Extract the vertex with the smallest distance from the heap
+        current_distance, current_vertex = heapq.heappop(heap)
+
+        # If we've reached the end vertex, we're done
+        if current_vertex == end_vertex['index']:
+            break
+
+        # Update the distances of the neighboring vertices
+        for edge in edges:
+            if edge['s'] == current_vertex:
+                neighbor_vertex = edge['t']
+                weight = get_edge_weight(edge, vertices)
+                if current_distance + weight < distances[neighbor_vertex]:
+                    distances[neighbor_vertex] = current_distance + weight
+                    previous[neighbor_vertex] = current_vertex
+                    heapq.heappush(heap, (distances[neighbor_vertex], neighbor_vertex))
+
+    # Reconstruct the shortest path from the previous dictionary
+    path = []
+    current_vertex = end_vertex['index']
+    while current_vertex is not None:
+        path.append(current_vertex)
+        current_vertex = previous[current_vertex]
+
+    # Reverse the path list to get the path from start to end
+    path = path[::-1]
+
+    # Color the edges blue
+    for i in range(len(path)-1):
+        for j in range(len(edges)):
+            if (edges[j]['s'] == path[i] and edges[j]['t'] == path[i+1]) or (edges[j]['s'] == path[i+1] and edges[j]['t'] == path[i]):
+                edges[j]["color"] = "blue"
+
+    print(path)
+    print(edges)
+    return edges
 
 # @csrf_exempt
 # def OpenCVHandler(request, id=0):

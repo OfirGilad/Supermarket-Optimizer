@@ -123,7 +123,9 @@ def FindPath(request, id=0):
         products = params["Products"]
 
         solution = params
-        del solution["Products"]
+        #del solution["Products"]
+
+        print(TSP(params))
 
         ### Add Full Algorithm
         for i in range(len(connections)):

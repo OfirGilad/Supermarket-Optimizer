@@ -284,7 +284,33 @@ export class ImageCanvasEditingComponent implements OnInit {
       console.log(point)
       this.fabric_canvas.add(point);
       this.points_list.push(point);
- 
+
+
+      // Add Tooltip
+      var tooltip = new fabric.Text('', {
+        fontFamily: 'Arial',
+        fontSize: 20,
+        left: point.left + 10,
+        top: point.top,
+        opacity: 0,
+        selectable: false
+      });
+      this.fabric_canvas.add(tooltip);
+
+      point.set('hoverCursor', 'pointer');
+      point.on('mouseover', function() {
+        if (this.selectable) {
+          tooltip.set('opacity', 1);
+          tooltip.set('text', point.id + "");
+          tooltip.set('left', this.left + 10)
+          tooltip.set('top', this.top)
+        }
+      });
+      point.on('mouseout', function() {
+        tooltip.set('opacity', 0);
+      });
+
+      this.all_tooltips.push(tooltip)
     }
     else {
       this.textInput.nativeElement.style.display = "none";
@@ -759,12 +785,16 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.DrawMetaData();
   }
 
+  all_tooltips = []
+
   DrawMetaData(){
     var json = JSON.parse(this.MetajsonTxt);
     let points = json["Points"];
     let connections = json["Connections"];
 
     let curr = [];
+
+    var tooltips_list = []
 
     // Draw Points
     if (points != null) {
@@ -790,7 +820,35 @@ export class ImageCanvasEditingComponent implements OnInit {
         });
         this.fabric_canvas.add(point);
         this.points_list.push(point);
+        
+        // Add Tooltip
+        var tooltip = new fabric.Text('', {
+          fontFamily: 'Arial',
+          fontSize: 20,
+          left: point.left + 10,
+          top: point.top,
+          opacity: 0,
+          selectable: false
+        });
+        this.fabric_canvas.add(tooltip);
+        
+        tooltips_list.push(tooltip)
+
+        point.set('hoverCursor', 'pointer');
+        point.on('mouseover', function() {
+          if (this.selectable) {
+            tooltips_list[i].set('opacity', 1);
+            tooltips_list[i].set('text', i + "");
+            tooltips_list[i].set('left', this.left + 10)
+            tooltips_list[i].set('top', this.top)
+          }
+        });
+        point.on('mouseout', function() {
+          tooltips_list[i].set('opacity', 0);
+        });
       }
+
+      this.all_tooltips = tooltips_list
     }
 
     // Draw Connections

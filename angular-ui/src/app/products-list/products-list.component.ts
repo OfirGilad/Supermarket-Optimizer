@@ -26,8 +26,6 @@ export class ProductsListComponent implements OnInit {
   selectedProducts = JSON
 
   ngOnInit(): void {
-    
-
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
       this.selectedProducts['products'] = []
       //this.MetaDataText.nativeElement.value = newImageJSON['metadata'];

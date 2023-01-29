@@ -26,17 +26,18 @@ export class ImageCanvasEditingComponent implements OnInit {
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<HTMLCanvasElement>;  
   fabric_canvas: any;
-
-  private ctx: CanvasRenderingContext2D;
-
-  currentImagePath: string = "";
-
+  
   @ViewChild('area') menuArea;
 
+  currentImagePath: string = "";
   
+  listOfProducts = []
+  productIndex = 0
 
+  selectedProducts = []
 
   ngOnInit(): void {
+
     // Clean Canvas
     // this.ctx = this.canvas.nativeElement.getContext('2d');
     // this.image.src = "";
@@ -54,6 +55,28 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
       this.MetajsonTxt = newImageJSON['metadata'];
 
+      // Set product list - START
+      this.selectedProducts['products'] = []
+      var json = JSON.parse(newImageJSON['products']);
+
+      // Sort products alphabetically
+      json = Object.keys(json).sort().reduce(
+        (obj, key) => { 
+          obj[key] = json[key]; 
+          return obj;
+        }, 
+        {}
+      );
+
+      this.listOfProducts =[]
+      this.productIndex = 0;
+
+      for (let key in json) {
+        this.listOfProducts.push({name: key, value: this.productIndex, checked: false})
+        this.productIndex++;
+      }
+      // Set product list - END
+
       var fabric_canvas = this.fabric_canvas;
       fabric_canvas.clear();
       
@@ -70,22 +93,6 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.menuArea.nativeElement.style.height = img.height + 'px';
 
       this.SendMetaData();
-
-      // img.onload = () => {
-      //   this.canvas.nativeElement.width = img.width;
-      //   this.canvas.nativeElement.height = img.height;
-      //   this.ctx = this.canvas.nativeElement.getContext('2d');
-      //   this.ctx.clearRect(0, 0, img.width, img.height);
-      //   this.ctx.drawImage(img, 0, 0);
-
-      //   this.currentImagePath = newImageJSON['url']
-        
-      //   this.menuArea.nativeElement.style.width = img.width + 'px';
-      //   this.menuArea.nativeElement.style.height = img.height + 'px';
-
-      //   this.SendMetaData();
-      // }
-
     })
 
     // Get notify on find path command
@@ -127,7 +134,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.fabric_canvas.on('object:moving', this.updateOnPointsMoving);
   }
 
-  @ViewChild('cvInput') cvInput;
+  @ViewChild('productSelectionInput') productSelectionInput;
 
   @ViewChild('MetaData') metaData;
 
@@ -135,7 +142,6 @@ export class ImageCanvasEditingComponent implements OnInit {
 
 
   // START FROM HERE
-
 
   CurrentClicked: string = "";
   LastClicked: string = "";
@@ -163,8 +169,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.DrawPoint();
     this.CurrentClicked = "Metadata";
     this.CallMetaData();
-    // this.CurrentClicked = "OpenCV";
-    // this.CVFunction();
+    this.CurrentClicked = "PointProductsUpdate";
+    this.PointProductsUpdateMode();
     this.CurrentClicked = "SelectStartingPoint";
     this.SelectStartingPointMode();
 
@@ -180,8 +186,8 @@ export class ImageCanvasEditingComponent implements OnInit {
 
 
   OnClick(e: any) {
-    this.ctx = this.canvas.nativeElement.getContext('2d');
-    var rect = this.canvas.nativeElement.getBoundingClientRect();
+    //var offset = this.fabric_canvas._offset;
+    var offset = this.canvas.nativeElement.getBoundingClientRect();
 
     if (this.CurrentClicked == "EditPosition"){
       this.disableOtherOptions()
@@ -219,8 +225,8 @@ export class ImageCanvasEditingComponent implements OnInit {
       //this.SendMetaData()
       this.CurrentClicked = "AddConnection";
 
-      var User_X = e.pageX - rect.left
-      var User_Y = e.pageY - rect.top
+      var User_X = e.pageX - offset.left
+      var User_Y = e.pageY - offset.top
 
 
       // Selecting First Point
@@ -247,8 +253,8 @@ export class ImageCanvasEditingComponent implements OnInit {
       //this.SendMetaData()
       this.CurrentClicked = "SelectStartingPoint";
 
-      var User_X = e.pageX - rect.left
-      var User_Y = e.pageY - rect.top
+      var User_X = e.pageX - offset.left
+      var User_Y = e.pageY - offset.top
 
       // console.log(this.MetajsonTxt)
       if (this.MetajsonTxt != '{}') {
@@ -267,23 +273,23 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
 
 
-    // else if (this.CurrentClicked == "OpenCV"){
-    //   this.disableOtherOptions()
-    //   this.CurrentClicked = "OpenCV";
+    else if (this.CurrentClicked == "PointProductsUpdate"){
+      this.disableOtherOptions()
+      this.CurrentClicked = "PointProductsUpdate";
 
-    //   this.textToCV.nativeElement.value = "{}";
-    //   this.cvInput.nativeElement.style.display = "block";
-    //   this.cvInput.nativeElement.style.top = e.pageY + "px";
-    //   this.cvInput.nativeElement.style.left = e.pageX + "px";
-    // }
+      //this.textToCV.nativeElement.value = "{}";
+      this.productSelectionInput.nativeElement.style.display = "block";
+      this.productSelectionInput.nativeElement.style.top = e.pageY + "px";
+      this.productSelectionInput.nativeElement.style.left = e.pageX + "px";
+    }
 
 
     else if (this.CurrentClicked == "Point"){
       this.disableOtherOptions()
       this.CurrentClicked = "Point";
 
-      this.point_x = e.clientX - rect.left
-      this.point_y = e.clientY - rect.top
+      this.point_x = e.clientX - offset.left
+      this.point_y = e.clientY - offset.top
       //this.color_point(this.point_x, this.point_y, 'black', 10)
 
       var json = JSON.parse(this.MetajsonTxt);
@@ -353,7 +359,6 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   OnEnter(e: any) {
     // console.log(this.CurrentClicked)
-    
   }
 
   // Right Click Menu - START
@@ -772,26 +777,35 @@ export class ImageCanvasEditingComponent implements OnInit {
   ////
   
 
-  // CVFunction() {
-  //   this.disappearContext();
-  //   if (this.CurrentClicked != "OpenCV") {
-  //     // this.OptionSelected(3)
+  PointProductsUpdateMode() {
+    this.disappearContext();
+    if (this.CurrentClicked != "PointProductsUpdate") {
+      // this.OptionSelected(3)
 
-  //     // Disable Edit Mode
-  //     this.edit_in_progress = false
-  //     this.DisableEditPositionsMode()
-  //     this.add_in_progress = false
-  //     this.DisableAddConnectionsMode()
+      // Disable Edit Mode
+      // this.edit_in_progress = false
+      // this.DisableEditPositionsMode()
+      // this.add_in_progress = false
+      // this.DisableAddConnectionsMode()
 
-  //     this.CurrentClicked = "OpenCV";
-  //     this.disableOtherOptions()
-  //     this.CurrentClicked = "OpenCV";
-  //   }
-  //   else {
-  //     this.CurrentClicked = "";
-  //     this.cvInput.nativeElement.style.display = "none";
-  //   }
-  // }
+      // Enable Mode
+      this.CurrentClicked = "PointProductsUpdate";
+      this.disableOtherOptions()
+
+      // Disable Other Modes
+      this.DisableEditPositionsMode();
+      this.DisableAddConnectionsMode();
+
+      this.CurrentClicked = "PointProductsUpdate";
+    }
+    else {
+      this.CurrentClicked = "";
+      this.productSelectionInput.nativeElement.style.display = "none";
+    }
+  }
+
+  // NEEED TO ADD DISABLE MODE FUNCTION
+
 
   CallMetaData(){
     this.disappearContext();
@@ -1149,7 +1163,29 @@ export class ImageCanvasEditingComponent implements OnInit {
     if(deleteMetadata)
       this.MetajsonTxt = "{}";
   }
+
+  selected_point = 0
+
+  UpdatePointProductsList() {
+    console.log("HI");
+  }
+
+  updateCheckedProduct(product, event) {
+    this.listOfProducts[product.value].checked = event.target.checked;
+    if (event.target.checked == true) {
+      this.selectedProducts['products'].push(product.name)
+    }
+    else {
+      let index = this.selectedProducts['products'].indexOf(product.name)
+      this.selectedProducts['products'].splice(index, 1)
+    }
+
+    console.log(this.listOfProducts);
+    
+  }
   // Buttons Implementation - END
+
+
 
 
 

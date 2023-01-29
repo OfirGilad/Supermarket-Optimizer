@@ -1,35 +1,60 @@
-<!-- <form #cvInput class="openCVContext">
-  <label class="cvBoxText" for="fname">OpenCV Function:</label>
-  <select #FunctionTextToCV name="cvFunction" id="cvFunction">
+<form #productSelectionInput class="ProductSelectionContext">
+  <label class="ProductSelectionBoxText" for="fname">Point ID: {{selected_point}}</label>
+  <label class="ProductSelectionBoxText" for="fname">Update Point Products:</label>
+
+  <div class="dropdown">
+    <select class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onmousedown="(function(e){ e.preventDefault(); })(event, this)">
+      <option value="Message">Select Products</option>
+    </select>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <ng-container *ngFor="let product of listOfProducts">
+        <div class="form-check">
+          <label>
+            <input type="checkbox" 
+                name="products" 
+                value={{product.value}}
+                [checked]="product.checked"
+                (change)="updateCheckedProduct(product, $event)"/>
+            {{product.name}}
+          </label>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  
+
+  <!-- <select #FunctionTextToCV name="cvFunction" id="cvFunction">
     <option value="GrayImage">Gray Image</option>
     <option value="ImageThresholding">Image Thresholding</option>
     <option value="TextDetection">Text Detection</option>
   </select>
   <label class="cvBoxText" for="fname">Function Parameters:</label>
-  <textarea #TextToCV class="cvBoxTextArea" name="TextArea" cols="25" rows="5"></textarea>
-  <input type="button" value="Send" (click)="OpenCVCall()">
-</form> -->
+  <textarea #TextToCV class="cvBoxTextArea" name="TextArea" cols="25" rows="5"></textarea> -->
+  <input type="button" value="Update" (click)="UpdatePointProductsList()">
+</form>
 
 <form #MetaData class="MetaDataContext">
   <label class="MetaBoxText" for="fname">MetaData Editor:</label>
   <textarea #MetaDataText class="MetaDataTextArea" name="TextArea" cols="25" rows="5"></textarea>
-  <input type="button" value="Send" (click)="SendMetaData()">
+  <input type="button" value="Update" (click)="SendMetaData()">
 </form>
 
 <div #area class="menu-area" (contextmenu)="contextMenu($event)" (click)="OnClick($event)">
   <canvas #canvas id="canvas" width="1000" height="600"></canvas>
     <div class="customContext" (click)="stopPropagation($event)" #menu>
       <ul>
-        <li (click)="EditPositionsMode()">Edit Positions</li>
-        <li (click)="AddConnectionsMode()">Add Connection</li>
+        <li (click)="EditPositionsMode()">Edit Point Positions</li>
+        <li (click)="PointProductsUpdateMode()">Edit Point Products</li>
+        <li (click)="SelectStartingPointMode()">Set Starting Point</li>
+
         <!-- <li (click)="EditConnectionsMode()">Remove Connection</li> -->
-        <!-- <li (click)="EditConnectionsMode()">Edit Point Products</li> -->
+        <!-- <li (click)="EditConnectionsMode()">Remove Point</li> -->
 
-        <li (click)="SelectStartingPointMode()">Starting Point</li>
 
-        <!-- <li (click)="CVFunction()">Find Path</li> -->
+        <li (click)="DrawPoint()">Add Point</li>
+        <li (click)="AddConnectionsMode()">Add Connection</li>
         
-        <li (click)="DrawPoint()">Point</li>
+        
         <li (click)="CallMetaData()">Edit Metadata</li>
         <li (click)="SaveMetadata()">Save Metadata</li>
         <li (click)="ClearAnnotations()">Clear All</li>

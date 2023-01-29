@@ -13,7 +13,7 @@
     /* border: 1px solid rgb(93, 0, 0); */
 }
 
-.openCVContext{
+.ProductSelectionContext{
     position: fixed;
     background-color: #333;
     width: 200px;
@@ -43,13 +43,13 @@
     resize: vertical;
 }
 
-.cvBoxText{
+.ProductSelectionBoxText{
     color: rgb(255, 255, 255);
 }
 
-.cvBoxTextArea{
+/* .cvBoxTextArea{
     resize: vertical;
-}
+} */
 
 .customContext{
     position: fixed;

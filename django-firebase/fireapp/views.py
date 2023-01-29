@@ -125,6 +125,8 @@ def FindPath(request, id=0):
         solution = params
         solution["Arrows"] = []
         paths_list = find_path(solution)
+        print("Algorithm solution:", paths_list)
+
         for path in paths_list:
             for i in range(len(path) - 1):
                 v1 = path[i]
@@ -166,10 +168,18 @@ def find_path(data):
                 if i not in required_vertices:
                     required_vertices.append(i)
 
+    print("Required vertices list:", required_vertices)
+    visited_vertices = [start_vertex]
     paths = []
     for i in range(len(required_vertices) - 1):
-        min_path = Dijkstra(data, required_vertices[i], required_vertices[i+1])[1]
+        if required_vertices[i + 1] in visited_vertices:
+            print("Vertex: " + str(required_vertices[i + 1]) + " was already visited")
+            continue
+        min_path = Dijkstra(data, required_vertices[i], required_vertices[i + 1])[1]
         paths.append(min_path)
+
+        # Update visited vertices
+        visited_vertices = list(set(visited_vertices + min_path))
 
     return paths
 

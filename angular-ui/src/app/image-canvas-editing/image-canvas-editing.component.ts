@@ -93,7 +93,12 @@ export class ImageCanvasEditingComponent implements OnInit {
       var findPathJSON = JSON.parse(this.MetajsonTxt)
       findPathJSON['Products'] = productsJSON["products"]
 
-      // Add call for backend
+      // Reset Edges Colors
+      for (let i = 0; i < findPathJSON['Connections'].length; i++) {
+        findPathJSON['Connections'][i]["color"] = "black"
+      }
+
+      // Call for result from backend
       this.FindPathCall(findPathJSON)
     })
 

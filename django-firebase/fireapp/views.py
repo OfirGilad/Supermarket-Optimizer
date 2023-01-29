@@ -1,5 +1,6 @@
 import os
 import urllib
+from collections import defaultdict
 
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -8,6 +9,9 @@ from django.http.response import JsonResponse
 import pyrebase
 import json
 from datetime import datetime
+
+from collections import defaultdict
+import heapq
 
 import skimage.io
 from PIL import Image
@@ -119,92 +123,74 @@ def FindPath(request, id=0):
         params = json.loads(params)
 
         solution = params
-        solution["Connections"] = get_shortest_path(solution)
+
+        print(find_path(solution))
+        ### Add coloring fo edges in the path
+        # solution["Connections"] = shortest_path(solution)
         del solution["Products"]
 
         return JsonResponse(solution, safe=False)
 
 
 # Sol from web
-import heapq
-
-
-# Helper function to find the vertex with the given product in its metadata
-def find_vertex_with_product(product, vertices):
-    for vertex in vertices:
-        if product in vertex['products']:
-            return vertex
-    return None
-
-
-# Helper function to get the weight of an edge
-def get_edge_weight(edge, vertices):
-    v1 = vertices[edge['s']]
-    v2 = vertices[edge['t']]
-    return ((v1['x'] - v2['x']) ** 2 + (v1['y'] - v2['y']) ** 2) ** 0.5
-
-
-def get_shortest_path(data):
-    # Extract input data
+def find_path(data):
     vertices = data['Points']
     edges = data['Connections']
     products_list = data['Products']
+    graph = defaultdict(list)
+
+    for edge in edges:
+        graph[edge['s']].append(edge['t'])
+        graph[edge['t']].append(edge['s'])
 
     start_vertex = None
-    # Find the starting and ending vertex for the path
-    for i in range(len(vertices)):
-        vertices[i]["index"] = i
-        if vertices[i]["color"] == "green":
-            start_vertex = vertices[i]
-
-    #start_vertex = find_vertex_with_product(products_list[0], vertices)
-    end_vertex = find_vertex_with_product(products_list[-1], vertices)
-
-    # Initialize the heap and distances dictionary
-    heap = [(0, start_vertex['index'])]
-    distances = {vertex['index']: float('inf') for vertex in vertices}
-    distances[start_vertex['index']] = 0
-
-    # Initialize the previous dictionary to store the previous vertex for each vertex
-    previous = {vertex['index']: None for vertex in vertices}
-
-    while heap:
-        # Extract the vertex with the smallest distance from the heap
-        current_distance, current_vertex = heapq.heappop(heap)
-
-        # If we've reached the end vertex, we're done
-        if current_vertex == end_vertex['index']:
+    for i, vertex in enumerate(vertices):
+        if vertex['color'] == 'green':
+            start_vertex = i
             break
 
-        # Update the distances of the neighboring vertices
-        for edge in edges:
-            if edge['s'] == current_vertex:
-                neighbor_vertex = edge['t']
-                weight = get_edge_weight(edge, vertices)
-                if current_distance + weight < distances[neighbor_vertex]:
-                    distances[neighbor_vertex] = current_distance + weight
-                    previous[neighbor_vertex] = current_vertex
-                    heapq.heappush(heap, (distances[neighbor_vertex], neighbor_vertex))
+    required_vertices = [start_vertex]
+    for product in products_list:
+        for i, vertex in enumerate(vertices):
+            if product in vertex['products']:
+                required_vertices.append(i)
 
-    # Reconstruct the shortest path from the previous dictionary
-    path = []
-    current_vertex = end_vertex['index']
-    while current_vertex is not None:
-        path.append(current_vertex)
-        current_vertex = previous[current_vertex]
+    paths = []
+    for i in range(len(required_vertices) - 1):
+        min_path = shortest_path(data, required_vertices[i], required_vertices[i+1])[1]
+        paths.append(min_path)
 
-    # Reverse the path list to get the path from start to end
-    path = path[::-1]
+    return paths
 
-    # Color the edges blue
-    for i in range(len(path)-1):
-        for j in range(len(edges)):
-            if (edges[j]['s'] == path[i] and edges[j]['t'] == path[i+1]) or (edges[j]['s'] == path[i+1] and edges[j]['t'] == path[i]):
-                edges[j]["color"] = "blue"
 
-    print(path)
-    print(edges)
-    return edges
+def shortest_path(data, start, end):
+    graph = defaultdict(list)
+    for edge in data["Connections"]:
+        x = edge['s']
+        y = edge['t']
+        z = distance_between(data["Points"][x], data["Points"][y])
+        graph[x].append((y, z))
+        graph[y].append((x, z))
+
+    heap = [(0, start, [])]
+    seen = set()
+    while heap:
+        (cost, node, path) = heapq.heappop(heap)
+        if node in seen:
+            continue
+        path = path + [node]
+        seen.add(node)
+        if node == end:
+            return cost, path
+        for n, w in graph[node]:
+            heapq.heappush(heap, (cost + w, n, path))
+
+    return float("inf"), []
+
+
+def distance_between(v1, v2):
+    return ((v1['x'] - v2['x']) ** 2 + (v1['y'] - v2['y']) ** 2) ** 0.5
+
 
 # @csrf_exempt
 # def OpenCVHandler(request, id=0):

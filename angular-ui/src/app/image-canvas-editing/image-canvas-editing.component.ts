@@ -119,13 +119,18 @@ export class ImageCanvasEditingComponent implements OnInit {
   CurrentClicked: string = "";
   LastClicked: string = "";
   
+  // Points list
   points_counter: number = 0;
   points_list = []
+  temp_points_list = []
 
+  // Connections List
   connections_counter: number = 0;
   connections_list = []
 
-  temp_points_list = []
+  // Tooltips and Arrows list
+  tooltips_list = []
+  arrows_list = []
 
   // For Point
   point_x: number = 0;
@@ -161,7 +166,6 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.disableOtherOptions()
       this.CurrentClicked = "EditPosition";
 
-      //
       var json = JSON.parse(this.MetajsonTxt);
       let points = json["Points"];
       
@@ -631,6 +635,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.edit_in_progress = true
     this.disappearContext();
     if (this.CurrentClicked != "EditPosition") {
+      // Hide Solution
+      this.hide_solution_path()
 
       // Enable Mode
       this.CurrentClicked = "EditPosition";
@@ -683,7 +689,9 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.add_in_progress = true
     this.disappearContext();
     if (this.CurrentClicked != "AddConnection") {
-
+      // Hide Solution
+      this.hide_solution_path()
+      
       // Enable Mode
       this.CurrentClicked = "AddConnection";
       this.disableOtherOptions()
@@ -792,8 +800,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.MetajsonTxt = this.MetaDataText.nativeElement.value;
     this.DrawMetaData();
   }
-
-  tooltips_list = []
 
   DrawMetaData(){
     var json = JSON.parse(this.MetajsonTxt);
@@ -907,18 +913,6 @@ export class ImageCanvasEditingComponent implements OnInit {
 
         let point1 = points[arrows[i][0]];
         let point2 = points[arrows[i][1]];
-
-        //var connection_id = [curr['s'], curr['t']];
-        //this.connections_counter += 1;
-        
-        //var connection_width = 2
-
-        // Increase line width for solution connection
-        // if (curr['color'] == "blue") {
-        //   connection_width = 5
-        // }
-
-        //point1['x'], point1['y'], point2['x'], point2['y']
         
         let x1 = point1['x']
         let y1 = point1['y']
@@ -980,7 +974,7 @@ export class ImageCanvasEditingComponent implements OnInit {
           }
           );
           this.fabric_canvas.add(arrowhead);
-          //this.connections_list.push(connection)
+          this.arrows_list.push(arrowhead)
       }
     }
   }
@@ -1079,9 +1073,16 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.fabric_canvas.remove(temp_point);
     });
 
+    this.arrows_list.forEach(arrow => {
+      this.fabric_canvas.remove(arrow);
+    });
+
     this.points_list = []
     this.connections_list = []
     this.temp_points_list = []
+
+    this.tooltips_list = []
+    this.arrows_list = []
 
     // this.OptionSelected(0)
 
@@ -1139,16 +1140,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     e.stopPropagation();
   }
 
-  // drawLine(x1, y1, x2, y2, color='black') {
-  //   this.ctx = this.canvas.nativeElement.getContext('2d');
-  //   //console.log(x1,y1,x2,y2)
-  //   this.ctx.beginPath();
-  //   this.ctx.moveTo(x1, y1);
-  //   this.ctx.lineTo(x2, y2);
-  //   this.ctx.strokeStyle = color;
-  //   this.ctx.stroke();
-  // }
-
   color_point(x, y, color='black', radius=5) {
     var point = new fabric.Circle({
       radius: radius,
@@ -1180,6 +1171,30 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     // console.log("RESULT",result)
     return result
+  }
+
+  hide_solution_path() {
+    var json = JSON.parse(this.MetajsonTxt);
+    let connections = json["Connections"];
+    let arrows = json["Arrows"];
+
+    if (connections != null) {
+      for (let i = 0; i < connections.length; i++) {
+        json["Connections"][i]["color"] = "black"
+      }
+    }
+    
+    if (arrows != null) {
+      this.arrows_list.forEach(arrow => {
+        this.fabric_canvas.remove(arrow);
+      });
+      this.arrows_list = []
+
+      delete json["Arrows"]
+    }
+
+    this.MetaDataText.nativeElement.value = JSON.stringify(json)
+    this.SendMetaData()
   }
 
 

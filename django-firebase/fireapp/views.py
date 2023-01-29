@@ -123,16 +123,23 @@ def FindPath(request, id=0):
         params = json.loads(params)
 
         solution = params
+        paths_list = find_path(solution)
+        for path in paths_list:
+            for i in range(len(path) - 1):
+                v1 = path[i]
+                v2 = path[i + 1]
+                for j, edge in enumerate(solution["Connections"]):
+                    if (edge["s"] == v1 and edge["t"] == v2) or (edge["s"] == v2 and edge["t"] == v1):
+                        solution["Connections"][j]["color"] = "blue"
 
-        print(find_path(solution))
-        ### Add coloring fo edges in the path
-        # solution["Connections"] = shortest_path(solution)
         del solution["Products"]
 
         return JsonResponse(solution, safe=False)
 
 
-# Sol from web
+# The algorithm trick:
+# 1. Get the order of products that got selected and find the ordered required vertices
+# 2. Find the minimal weighted path from the starting point, through the required vertices in their given order
 def find_path(data):
     vertices = data['Points']
     edges = data['Connections']
@@ -153,17 +160,18 @@ def find_path(data):
     for product in products_list:
         for i, vertex in enumerate(vertices):
             if product in vertex['products']:
-                required_vertices.append(i)
+                if i not in required_vertices:
+                    required_vertices.append(i)
 
     paths = []
     for i in range(len(required_vertices) - 1):
-        min_path = shortest_path(data, required_vertices[i], required_vertices[i+1])[1]
+        min_path = Dijkstra(data, required_vertices[i], required_vertices[i+1])[1]
         paths.append(min_path)
 
     return paths
 
 
-def shortest_path(data, start, end):
+def Dijkstra(data, start, end):
     graph = defaultdict(list)
     for edge in data["Connections"]:
         x = edge['s']

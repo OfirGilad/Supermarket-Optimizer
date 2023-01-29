@@ -872,6 +872,13 @@ export class ImageCanvasEditingComponent implements OnInit {
         //this.drawLine(point1['x'], point1['y'], point2['x'], point2['y'], curr['color']);
         var connection_id = [curr['s'], curr['t']];
         this.connections_counter += 1;
+        
+        var connection_width = 2
+
+        // Increase line width for solution connection
+        if (curr['color'] == "blue") {
+          connection_width = 5
+        }
 
         var connection = new fabric.Line(
           [
@@ -880,7 +887,7 @@ export class ImageCanvasEditingComponent implements OnInit {
           {
             id: connection_id,
             stroke: curr['color'],
-            strokeWidth: 2,
+            strokeWidth: connection_width,
             hasControls: false,
             hasBorders: false,
             selectable: false,
@@ -932,10 +939,17 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.CurrentClicked = ""
     this.OnClick("NONE")
 
+    // Reset Edges Colors
+    var json = JSON.parse(this.MetajsonTxt);
+    for (let i = 0; i < json['Connections'].length; i++) {
+      json['Connections'][i]["color"] = "black"
+    }
+    this.MetajsonTxt = JSON.stringify(json)
+
     var jsonParams = JSON.parse('{}')
     jsonParams['url'] = this.currentImagePath
     jsonParams['metadata'] = this.MetajsonTxt
-    
+
     console.log("Sent Json:", jsonParams)
 
     this.metadataService.saveMetadataToFirebase(jsonParams).subscribe((data: any)=>{

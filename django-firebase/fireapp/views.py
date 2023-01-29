@@ -123,11 +123,13 @@ def FindPath(request, id=0):
         params = json.loads(params)
 
         solution = params
+        solution["Arrows"] = []
         paths_list = find_path(solution)
         for path in paths_list:
             for i in range(len(path) - 1):
                 v1 = path[i]
                 v2 = path[i + 1]
+                solution["Arrows"].append([v1, v2])
                 for j, edge in enumerate(solution["Connections"]):
                     if (edge["s"] == v1 and edge["t"] == v2) or (edge["s"] == v2 and edge["t"] == v1):
                         solution["Connections"][j]["color"] = "blue"
@@ -156,6 +158,7 @@ def find_path(data):
             start_vertex = i
             break
 
+    # Required assumption: There are no 2 or more vertices with the same products
     required_vertices = [start_vertex]
     for product in products_list:
         for i, vertex in enumerate(vertices):

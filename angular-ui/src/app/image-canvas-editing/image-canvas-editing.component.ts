@@ -799,21 +799,19 @@ export class ImageCanvasEditingComponent implements OnInit {
     var json = JSON.parse(this.MetajsonTxt);
     let points = json["Points"];
     let connections = json["Connections"];
+    let arrows = json["Arrows"];
 
     let curr = [];
-
-    var tooltips_list = []
+    let tooltips_list = []
 
     // Draw Points
     if (points != null) {
       for (let i = 0; i < points.length; i++) {
         curr = points[i];
-        this.ctx = this.canvas.nativeElement.getContext('2d');
 
         //this.color_point(curr['x'], curr['y'], curr['color'], 10);
         var point_id = this.points_counter;
         this.points_counter += 1;
-
         
         var point = new fabric.Circle({
           id: point_id,
@@ -864,7 +862,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     if (connections != null) {
       for (let i = 0; i < connections.length; i++) {
         curr = connections[i];
-        this.ctx = this.canvas.nativeElement.getContext('2d');
 
         let point1 = points[curr['s']];
         let point2 = points[curr['t']];
@@ -900,6 +897,90 @@ export class ImageCanvasEditingComponent implements OnInit {
           );
           this.fabric_canvas.add(connection);
           this.connections_list.push(connection)
+      }
+    }
+
+    // Solution arrows
+    if (arrows != null) {
+      for (let i = 0; i < arrows.length; i++) {
+        curr = arrows[i];
+
+        let point1 = points[arrows[i][0]];
+        let point2 = points[arrows[i][1]];
+
+        //var connection_id = [curr['s'], curr['t']];
+        //this.connections_counter += 1;
+        
+        //var connection_width = 2
+
+        // Increase line width for solution connection
+        // if (curr['color'] == "blue") {
+        //   connection_width = 5
+        // }
+
+        //point1['x'], point1['y'], point2['x'], point2['y']
+        
+        let x1 = point1['x']
+        let y1 = point1['y']
+        let x2 = point2['x']
+        let y2 = point2['y']
+
+        let verticalHeight = Math.abs(y2 - y1)
+        let horizontalWidth = Math.abs(x2 - x1)
+        let tanRatio =  verticalHeight / horizontalWidth
+        let basicAngle = Math.atan(tanRatio) * 180 / Math.PI
+        
+        let arrowAngle = 0
+
+        if (x2 > x1) {
+          if (y2 < y1) {
+            arrowAngle = -basicAngle
+          }
+          else if (y2 == y1) {
+            arrowAngle = 0
+          }
+          else if (y2 > y1) {
+            arrowAngle = basicAngle
+          }
+        }
+
+        else if (x2 <= x1) {
+          if (y2 > y1) {
+            arrowAngle = 180 - basicAngle
+          }
+          else if (y2 == y1) {
+            arrowAngle = 180
+          }
+          else if (y2 < y1) {
+            arrowAngle = 180 + basicAngle
+          }
+        }
+
+        var arrowhead = new fabric.Polygon(
+          [
+            {x: 0, y:0},
+            {x: -20, y:-10},
+            {x: -20, y:10},
+          ],
+          {
+            stroke: "black",
+            fill: "blue",
+            strokeWidth: 1,
+            hasControls: false,
+            hasBorders: false,
+            selectable: false,
+            lockMovementX: true,
+            lockMovementY: true,
+            hoverCursor: "default",
+            originX: "center",
+            originY: "center",
+            left:  0.95 * point2['x'] + 0.05 * point1['x'],
+            top: 0.95 * point2['y'] + 0.05 * point1['y'],
+            angle: arrowAngle
+          }
+          );
+          this.fabric_canvas.add(arrowhead);
+          //this.connections_list.push(connection)
       }
     }
   }

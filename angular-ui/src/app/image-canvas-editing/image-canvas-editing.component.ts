@@ -101,8 +101,10 @@ export class ImageCanvasEditingComponent implements OnInit {
       findPathJSON['Products'] = productsJSON["products"]
 
       // Reset Edges Colors
-      for (let i = 0; i < findPathJSON['Connections'].length; i++) {
-        findPathJSON['Connections'][i]["color"] = "black"
+      if (findPathJSON['Connections'] != null) {
+        for (let i = 0; i < findPathJSON['Connections'].length; i++) {
+          findPathJSON['Connections'][i]["color"] = "black"
+        }
       }
 
       // Call for result from backend
@@ -114,17 +116,17 @@ export class ImageCanvasEditingComponent implements OnInit {
       var json = JSON.parse(this.MetajsonTxt)
       
       // Reset Edges Colors
-      for (let i = 0; i < json['Points'].length; i++) {
-
-        if (json["Points"][i]["products"].indexOf(selectedProductJSON["name"]) != -1) {
-          if (selectedProductJSON["value"] == true) {
-            json["Points"][i]["color"] = "blue"
-          }
-          else {
-            json["Points"][i]["color"] = "black"
+      if (json['Points'] != null) {
+        for (let i = 0; i < json['Points'].length; i++) {
+          if (json["Points"][i]["products"].indexOf(selectedProductJSON["name"]) != -1) {
+            if (selectedProductJSON["value"] == true) {
+              json["Points"][i]["color"] = "blue"
+            }
+            else {
+              json["Points"][i]["color"] = "black"
+            }
           }
         }
-        
       }
       this.MetaDataText.nativeElement.value = JSON.stringify(json)
       this.SendMetaData()
@@ -1051,10 +1053,12 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     // Reset Edges Colors
     var json = JSON.parse(this.MetajsonTxt);
-    for (let i = 0; i < json['Connections'].length; i++) {
-      json['Connections'][i]["color"] = "black"
+    if (json['Connections'] != null) {
+      for (let i = 0; i < json['Connections'].length; i++) {
+        json['Connections'][i]["color"] = "black"
+      }
+      this.MetajsonTxt = JSON.stringify(json)
     }
-    this.MetajsonTxt = JSON.stringify(json)
 
     var jsonParams = JSON.parse('{}')
     jsonParams['url'] = this.currentImagePath

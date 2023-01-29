@@ -23,8 +23,11 @@ export class ProductsListComponent implements OnInit {
   listOfProducts = []
   ProductsjsonTxt: string = "{}"
   productIndex = 0
+  selectedProducts = JSON
 
   ngOnInit(): void {
+    this.selectedProducts['products'] = []
+
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
       
       //this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
@@ -58,6 +61,14 @@ export class ProductsListComponent implements OnInit {
   updateCheckedProduct(product, event) {
     this.listOfProducts[product.value].checked = event.target.checked;
     //console.log(this.listOfProducts)
+
+    if (event.target.checked == true) {
+      this.selectedProducts['products'].push(product.name)
+    }
+    else {
+      let index = this.selectedProducts['products'].indexOf(product.name)
+      this.selectedProducts['products'].splice(index, 1)
+    }
   }
 
   addProduct(){
@@ -65,16 +76,7 @@ export class ProductsListComponent implements OnInit {
   }
 
   findPath() {
-    var selectedProducts = JSON
-    selectedProducts['products'] = []
-
-    for (let i = 0; i < this.listOfProducts.length; i++) {
-      if (this.listOfProducts[i].checked == true) {
-        selectedProducts['products'].push(this.listOfProducts[i].name)
-      }
-    }
-
-    this.productsListService.setProducts(selectedProducts)
+    this.productsListService.setProducts(this.selectedProducts)
   }
 }
 

@@ -102,6 +102,27 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.FindPathCall(findPathJSON)
     })
 
+    // Get notifyied on selected product to color
+    this.productsListService.selectedProductEvent.subscribe((selectedProductJSON: JSON) => {
+      var json = JSON.parse(this.MetajsonTxt)
+      
+      // Reset Edges Colors
+      for (let i = 0; i < json['Points'].length; i++) {
+
+        if (json["Points"][i]["products"].indexOf(selectedProductJSON["name"]) != -1) {
+          if (selectedProductJSON["value"] == true) {
+            json["Points"][i]["color"] = "blue"
+          }
+          else {
+            json["Points"][i]["color"] = "black"
+          }
+        }
+        
+      }
+      this.MetaDataText.nativeElement.value = JSON.stringify(json)
+      this.SendMetaData()
+    })
+
     // Add events
     this.fabric_canvas.on('object:moving', this.updateOnPointsMoving);
   }

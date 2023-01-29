@@ -61,7 +61,6 @@ export class ProductsListComponent implements OnInit {
   updateCheckedProduct(product, event) {
     this.listOfProducts[product.value].checked = event.target.checked;
     //console.log(this.listOfProducts)
-
     if (event.target.checked == true) {
       this.selectedProducts['products'].push(product.name)
     }
@@ -69,6 +68,12 @@ export class ProductsListComponent implements OnInit {
       let index = this.selectedProducts['products'].indexOf(product.name)
       this.selectedProducts['products'].splice(index, 1)
     }
+
+    // Request to update the point on the canvas
+    var selectedProductStatus = JSON
+    selectedProductStatus["name"] = product.name
+    selectedProductStatus["value"] = event.target.checked
+    this.productsListService.setSelectedProduct(selectedProductStatus)
   }
 
   addProduct(){

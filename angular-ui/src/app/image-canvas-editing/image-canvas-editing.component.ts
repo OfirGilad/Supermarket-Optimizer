@@ -277,18 +277,12 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.metaData.nativeElement.style.left = e.pageX + "px";
     }
 
-
     else if (this.CurrentClicked == "PointProductsUpdate"){
       this.disableOtherOptions()
       this.CurrentClicked = "PointProductsUpdate";
 
       var User_X = e.pageX - offset.left
       var User_Y = e.pageY - offset.top
-
-      // if (this.MetajsonTxt != '{}') {
-      //   this.findSelectedPoint(User_X, User_Y)
-      //   this.CurrentClicked = "";
-      // } 
 
       if (this.points_products_update_mode_stage1 == false) {
         // console.log(this.MetajsonTxt)
@@ -310,10 +304,7 @@ export class ImageCanvasEditingComponent implements OnInit {
           this.productSelectionInput.nativeElement.style.display = "none";
           this.points_products_update_mode_stage1 = false
       }
-
-      
     }
-
 
     else if (this.CurrentClicked == "Point"){
       this.disableOtherOptions()

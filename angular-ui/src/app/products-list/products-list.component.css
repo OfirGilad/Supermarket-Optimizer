@@ -19,7 +19,7 @@
     display: block;
 }
 
-.productnav a:hover {
+.product-list:hover {
     color: #f1f1f1;
 }
 
@@ -37,7 +37,16 @@
     width: 180px;
 }
 
-.btn-class {
-    width: 170px;
+.btn-class1 {
+    margin-bottom: 5px;
 }
-  
+
+.btn-class2 {
+  margin-top: 10px;
+  width: 170px;
+}
+
+.products {
+  padding: 10px 10px;
+  margin-left: 10px;
+}

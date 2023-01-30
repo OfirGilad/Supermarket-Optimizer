@@ -8,20 +8,22 @@
     
 
     <a *ngFor="let product of listOfProducts | filter:filterValue">
-      <label>
+      <label class="product-list">
         <input type="checkbox" 
-                name="products" 
-                value={{product.value}}
-                [checked]="product.checked"
-                (change)="updateCheckedProduct(product, $event)"/>
+              name="products" 
+              value={{product.value}}
+              [checked]="product.checked"
+              (change)="updateCheckedProduct(product, $event)"/>
         {{product.name}}
       </label>
-      <input #removeButtons [id]="product.value" class="btn-class" type="submit" value="(-) Product" (click)="removeProduct(product.value)" hidden>
+      <label class="btn-class1">
+        <input #removeButtons [id]="product.value" type="submit" value="(-) Product" (click)="removeProduct(product.value)" hidden>
+      </label>
     </a>
 
     <b>
-      <input #addButton class="btn-class" type="submit" value="(+) Product" (click)="addProduct()" hidden>
-      <input #findButton class="btn-class" type="submit" value="Find Path" (click)="findPath()" hidden>
+      <input #addButton class="btn-class2" type="submit" value="(+) Product" (click)="addProduct()" hidden>
+      <input #findButton class="btn-class2" type="submit" value="Find Path" (click)="findPath()" hidden>
       <!-- <input #removeButton class="btn-class" type="submit" value="(-) Product" (click)="removeProduct()" hidden> -->
     </b>
   </div>

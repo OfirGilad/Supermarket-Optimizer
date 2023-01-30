@@ -66,12 +66,12 @@ export class ProductsListComponent implements OnInit {
 
       if(this.ADMIN_PERMISSIONS) {
         this.addButton.nativeElement.style.display = "block";
-        console.log(this.removeButtons)
+        // console.log(this.removeButtons)
         
         await this.sleep(10);
 
         this.removeButtons.forEach(removeBTN => {
-          console.log(removeBTN.nativeElement)
+          // console.log(removeBTN.nativeElement)
           removeBTN.nativeElement.style.display = "block";
         });
       }

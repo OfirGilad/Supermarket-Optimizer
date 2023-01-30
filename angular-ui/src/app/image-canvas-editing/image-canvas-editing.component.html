@@ -9,7 +9,7 @@
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       <ng-container *ngFor="let product of listOfProducts">
         <div class="form-check">
-          <label>
+          <label class="products">
             <input type="checkbox" 
                 name="products" 
                 value={{product.value}}
@@ -30,7 +30,7 @@
   </select>
   <label class="cvBoxText" for="fname">Function Parameters:</label>
   <textarea #TextToCV class="cvBoxTextArea" name="TextArea" cols="25" rows="5"></textarea> -->
-  <input type="button" value="Update" (click)="UpdatePointProductsList()">
+  <input class="button" type="button" value="Update" (click)="UpdatePointProductsList()">
 </form>
 
 <form #MetaData class="MetaDataContext">

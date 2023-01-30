@@ -82,4 +82,13 @@
 .customContext ul li:hover {
     background-color: rgb(30, 30, 30);
 }
+
+.products {
+    margin: 5px;
+    margin-left: 10px;
+}
+
+.button {
+    margin-top: 5px;
+}
 /* Right Click Menu - END */

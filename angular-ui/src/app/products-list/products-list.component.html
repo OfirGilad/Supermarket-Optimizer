@@ -16,12 +16,13 @@
                 (change)="updateCheckedProduct(product, $event)"/>
         {{product.name}}
       </label>
+      <input #removeButtons [id]="product.value" class="btn-class" type="submit" value="(-) Product" (click)="removeProduct(product.value)" hidden>
     </a>
 
     <b>
       <input #findButton class="btn-class" type="submit" value="Find Path" (click)="findPath()" hidden>
       <input #addButton class="btn-class" type="submit" value="(+) Product" (click)="addProduct()" hidden>
-      <input #removeButton class="btn-class" type="submit" value="(-) Product" (click)="removeProduct()" hidden>
+      <!-- <input #removeButton class="btn-class" type="submit" value="(-) Product" (click)="removeProduct()" hidden> -->
     </b>
   </div>
 </div>

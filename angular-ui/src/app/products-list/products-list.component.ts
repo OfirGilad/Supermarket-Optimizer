@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { ProductsListService } from '../products-list.service';
 import { Pipe, PipeTransform } from '@angular/core';
@@ -21,7 +21,7 @@ export class ProductsListComponent implements OnInit {
 
   @ViewChild('findButton') findButton;
   @ViewChild('addButton') addButton;
-  @ViewChild('removeButton') removeButton;
+  @ViewChildren('removeButtons') removeButtons: QueryList<ElementRef>;
   @ViewChild('filterBar') filterBar;
 
   filterValue: string;
@@ -31,12 +31,12 @@ export class ProductsListComponent implements OnInit {
   productIndex = 0
   selectedProducts = JSON
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (this.router.url == '/admin') {
       this.ADMIN_PERMISSIONS = true
     }
 
-    this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
+    this.imageCanvasEditingService.imagePathChangedEvent.subscribe(async (newImageJSON: JSON) => {
       this.selectedProducts['products'] = []
       //this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
       this.ProductsjsonTxt = newImageJSON['products'];
@@ -66,7 +66,14 @@ export class ProductsListComponent implements OnInit {
 
       if(this.ADMIN_PERMISSIONS) {
         this.addButton.nativeElement.style.display = "block";
-        this.removeButton.nativeElement.style.display = "block";
+        console.log(this.removeButtons)
+        
+        await this.sleep(10);
+
+        this.removeButtons.forEach(removeBTN => {
+          console.log(removeBTN.nativeElement)
+          removeBTN.nativeElement.style.display = "block";
+        });
       }
     })
 
@@ -82,6 +89,12 @@ export class ProductsListComponent implements OnInit {
         }
       }
     })
+  }
+
+  sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
   }
 
   updateCheckedProduct(product, event) {
@@ -110,7 +123,8 @@ export class ProductsListComponent implements OnInit {
     console.log('Open Add Product')
   }
 
-  removeProduct(){
+  removeProduct(product_value){
+    console.log(product_value)
     console.log('Open Remove Product')
   }
 }

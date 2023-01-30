@@ -35,6 +35,7 @@ export class ImageCanvasEditingComponent implements OnInit {
   productIndex = 0
 
   selectedProducts = []
+  numberOfSelectedProducts = 0
 
   ngOnInit(): void {
 
@@ -171,8 +172,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.DrawPoint();
     this.CurrentClicked = "Metadata";
     this.CallMetaData();
-    this.CurrentClicked = "PointProductsUpdate";
-    this.PointProductsUpdateMode();
+    // this.CurrentClicked = "PointProductsUpdate";
+    // this.PointProductsUpdateMode();
     this.CurrentClicked = "SelectStartingPoint";
     this.SelectStartingPointMode();
 
@@ -186,6 +187,8 @@ export class ImageCanvasEditingComponent implements OnInit {
   // AddConnection - Modes
   add_connections_mode_stage1: boolean = false
 
+  // PointProductsUpdate - Modes
+  points_products_update_mode_stage1: boolean = false
 
   OnClick(e: any) {
     //var offset = this.fabric_canvas._offset;
@@ -279,10 +282,36 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.disableOtherOptions()
       this.CurrentClicked = "PointProductsUpdate";
 
-      //this.textToCV.nativeElement.value = "{}";
-      this.productSelectionInput.nativeElement.style.display = "block";
-      this.productSelectionInput.nativeElement.style.top = e.pageY + "px";
-      this.productSelectionInput.nativeElement.style.left = e.pageX + "px";
+      var User_X = e.pageX - offset.left
+      var User_Y = e.pageY - offset.top
+
+      // if (this.MetajsonTxt != '{}') {
+      //   this.findSelectedPoint(User_X, User_Y)
+      //   this.CurrentClicked = "";
+      // } 
+
+      if (this.points_products_update_mode_stage1 == false) {
+        // console.log(this.MetajsonTxt)
+        if (this.MetajsonTxt != '{}') {
+          this.findSelectedPoint(User_X, User_Y)
+          this.CurrentClicked = "PointProductsUpdate";
+
+          this.productSelectionInput.nativeElement.style.display = "block";
+          this.productSelectionInput.nativeElement.style.top = e.pageY + "px";
+          this.productSelectionInput.nativeElement.style.left = e.pageX + "px";
+        }
+      }
+      else {
+          // Remove temp points and close window
+          for (let i = 0; i < this.temp_points_list.length; i++) {
+            this.fabric_canvas.remove(this.temp_points_list[i])
+          }
+
+          this.productSelectionInput.nativeElement.style.display = "none";
+          this.points_products_update_mode_stage1 = false
+      }
+
+      
     }
 
 
@@ -658,6 +687,60 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
 
 
+  point4_index = 0
+  point4_data = []
+  min_x4 = 0
+  min_y4 = 0
+  min_x_dist4 = 0
+  min_y_dist4 = 0
+
+  findSelectedPoint(x1, y1) {
+    this.point4_data = []
+    var min_distance = this.canvas.nativeElement.width * this.canvas.nativeElement.width
+    
+    var json = JSON.parse(this.MetajsonTxt);
+    let points = json["Points"];
+    
+    let curr = [];   
+
+    // Check Points
+    if (points != null) {
+      for (let i = 0; i < points.length; i++) {
+        curr = points[i];
+        var x2 = curr['x']
+        var y2 = curr['y']
+        var distance = this.points_distance(x1, y1, x2, y2)
+        
+        if (distance < min_distance) {
+          min_distance = distance
+          this.point4_index = i
+          this.point4_data = curr
+        }
+      }
+
+      var selected_x = this.point4_data['x']
+      var selected_y = this.point4_data['y']
+      this.color_point(selected_x, selected_y, 'yellow')
+
+      //
+      this.selected_point = this.point4_index
+      this.selectedProducts['products'] = this.point4_data['products']
+
+      for (let i = 0; i < this.listOfProducts.length; i++) {
+        if (this.selectedProducts['products'].indexOf(this.listOfProducts[i].name) != -1) {
+          this.listOfProducts[i].checked = true
+        }
+        else {
+          this.listOfProducts[i].checked = false
+        }
+      }
+      this.numberOfSelectedProducts = this.selectedProducts['products'].length
+      
+      this.points_products_update_mode_stage1 = true
+    }
+  }
+
+
   // Buttons Implementation - START
   EditPositionsMode() {
     this.edit_in_progress = true
@@ -726,6 +809,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       // Disable Other Modes
       this.DisableEditPositionsMode();
+      this.DisablePointProductsUpdateMode();
 
       this.CurrentClicked = "AddConnection";
     }
@@ -746,7 +830,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       //this.SendMetaData()
     }
 
-    // Empty red point
+    // Empty red points
     for (let i = 0; i < this.temp_points_list.length; i++) {
       this.fabric_canvas.remove(this.temp_points_list[i])
     }
@@ -780,15 +864,11 @@ export class ImageCanvasEditingComponent implements OnInit {
   
 
   PointProductsUpdateMode() {
+    this.product_selection_in_progress = true
     this.disappearContext();
-    if (this.CurrentClicked != "PointProductsUpdate") {
-      // this.OptionSelected(3)
-
-      // Disable Edit Mode
-      // this.edit_in_progress = false
-      // this.DisableEditPositionsMode()
-      // this.add_in_progress = false
-      // this.DisableAddConnectionsMode()
+    if (this.CurrentClicked != "PointProductsUpdate") {      
+      // Hide Solution
+      this.hide_solution_path()
 
       // Enable Mode
       this.CurrentClicked = "PointProductsUpdate";
@@ -801,12 +881,29 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.CurrentClicked = "PointProductsUpdate";
     }
     else {
+      this.product_selection_in_progress = false
+      this.DisablePointProductsUpdateMode()
       this.CurrentClicked = "";
-      this.productSelectionInput.nativeElement.style.display = "none";
     }
   }
 
-  // NEEED TO ADD DISABLE MODE FUNCTION
+  product_selection_in_progress = false
+
+  DisablePointProductsUpdateMode() {
+    if (this.points_products_update_mode_stage1 == true && this.product_selection_in_progress == false) {
+      this.points_products_update_mode_stage1 = false
+      //this.SendMetaData()
+    }
+
+    // Empty yellow points
+    for (let i = 0; i < this.temp_points_list.length; i++) {
+      this.fabric_canvas.remove(this.temp_points_list[i])
+    }
+    this.temp_points_list = []
+
+    // Close window
+    this.productSelectionInput.nativeElement.style.display = "none";
+  }
 
 
   CallMetaData(){
@@ -818,6 +915,8 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.DisableEditPositionsMode()
       this.add_in_progress = false
       this.DisableAddConnectionsMode()
+      this.product_selection_in_progress = false
+      this.DisablePointProductsUpdateMode()
 
       this.CurrentClicked = "Metadata";
       this.disableOtherOptions()
@@ -1075,12 +1174,16 @@ export class ImageCanvasEditingComponent implements OnInit {
   DrawPoint() {
     this.disappearContext();
     if (this.CurrentClicked != "Point") {
-
+      // Hide Solution
+      this.hide_solution_path()
+      
       // Disable Edit Mode
       this.edit_in_progress = false
       this.DisableEditPositionsMode()
       this.add_in_progress = false
       this.DisableAddConnectionsMode()
+      this.product_selection_in_progress = false
+      this.DisablePointProductsUpdateMode()
 
       this.CurrentClicked = "Point";
       this.disableOtherOptions()
@@ -1126,19 +1229,23 @@ export class ImageCanvasEditingComponent implements OnInit {
     // this.OptionSelected(0)
 
     // Disable Edit Mode
-    if (deleteMetadata == true) {
+   // if (deleteMetadata == true) {
       this.edit_in_progress = false
       this.edit_positions_mode_stage1 = false
 
       this.add_in_progress = false
       this.add_connections_mode_stage1 = false
       //this.add_connections_mode_stage2 = false
-    }
+
+      this.product_selection_in_progress = false
+      this.points_products_update_mode_stage1 = false
+      this.productSelectionInput.nativeElement.style.display = "none";
+    //}
 
     let LastMetadata = this.MetaDataText.nativeElement.value;
     this.disableOtherOptions()
     this.disappearContext()
-
+    
 
     this.fabric_canvas.clear();
     this.fabric_canvas.setBackgroundImage(this.currentImagePath, this.fabric_canvas.renderAll.bind(this.fabric_canvas), {
@@ -1171,7 +1278,20 @@ export class ImageCanvasEditingComponent implements OnInit {
   selected_point = 0
 
   UpdatePointProductsList() {
-    console.log("HI");
+    for (let i = 0; i < this.temp_points_list.length; i++) {
+      this.fabric_canvas.remove(this.temp_points_list[i])
+    }
+
+    var json = JSON.parse(this.MetajsonTxt);
+    json["Points"][this.selected_point]["products"] = this.selectedProducts["products"]
+
+    this.MetajsonTxt = JSON.stringify(json);
+    this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+    
+    this.product_selection_in_progress = false
+
+    this.disappearContext()
+    this.OnClick("NONE")
   }
 
   updateCheckedProduct(product, event) {
@@ -1183,14 +1303,9 @@ export class ImageCanvasEditingComponent implements OnInit {
       let index = this.selectedProducts['products'].indexOf(product.name)
       this.selectedProducts['products'].splice(index, 1)
     }
-
-    console.log(this.listOfProducts);
-    
+    this.numberOfSelectedProducts = this.selectedProducts['products'].length
   }
   // Buttons Implementation - END
-
-
-
 
 
   disappearContext(){

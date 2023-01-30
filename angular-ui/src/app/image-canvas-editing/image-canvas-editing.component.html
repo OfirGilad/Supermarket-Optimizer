@@ -4,7 +4,7 @@
 
   <div class="dropdown">
     <select class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onmousedown="(function(e){ e.preventDefault(); })(event, this)">
-      <option value="Message">Select Products</option>
+      <option value="Message">{{numberOfSelectedProducts}} Product(s) Selected</option>
     </select>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       <ng-container *ngFor="let product of listOfProducts">

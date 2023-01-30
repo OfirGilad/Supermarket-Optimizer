@@ -30,6 +30,13 @@ export class ImagesListComponent implements OnInit {
       this.ADMIN_PERMISSIONS = true
     }
     
+    this.getServerData()
+    this.imagesSerivce.requestServerDataEvent.subscribe((request: string) => {
+      this.getServerData()
+    })
+  }
+
+  getServerData() {
     this.imagesSerivce.getImages().subscribe((data: any)=>{
       this.listOfImages = [];
       for (let i = 0; i < data.length; i++) {

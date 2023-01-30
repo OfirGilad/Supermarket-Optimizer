@@ -5,6 +5,7 @@ import { FindPathService } from '../find-path.service';
 import { MetadataService } from '../metadata.service';
 import { fabric } from 'fabric';
 import { Router } from '@angular/router';
+import { ImagesService } from '../images.service';
 
 @Component({
   selector: 'app-image-canvas-editing',
@@ -23,6 +24,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     private findPathService: FindPathService,
     private metadataService: MetadataService,
     private router: Router,
+    private imagesSerivce: ImagesService,
   ) { }
 
   ADMIN_PERMISSIONS = false
@@ -1165,7 +1167,8 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     this.metadataService.saveMetadataToFirebase(jsonParams).subscribe((data: any)=>{
       console.log("Metadata URL:", data);
-      // window.location.reload();
+      
+      this.imagesSerivce.updateData("Requesting Server updated data")
     })
   }
 

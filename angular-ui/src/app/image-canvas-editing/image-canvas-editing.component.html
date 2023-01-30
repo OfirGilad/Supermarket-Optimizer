@@ -43,21 +43,20 @@
   <canvas #canvas id="canvas" width="1000" height="600"></canvas>
     <div class="customContext" (click)="stopPropagation($event)" #menu>
       <ul>
-        <li (click)="EditPositionsMode()">Edit Point Positions</li>
-        <li (click)="PointProductsUpdateMode()">Edit Point Products</li>
-        <li (click)="SelectStartingPointMode()">Set Starting Point</li>
+        <li [hidden]="CheckPermission()" (click)="EditPositionsMode()">Edit Point Positions</li>
+        <li [hidden]="CheckPermission()" (click)="PointProductsUpdateMode()">Edit Point Products</li>
+        <li (click)="SelectStartingPointMode()">Set Starting Point</li> <!--No Permission Required-->
 
-        <!-- <li (click)="EditConnectionsMode()">Remove Connection</li> -->
-        <!-- <li (click)="EditConnectionsMode()">Remove Point</li> -->
+        <!-- <li [hidden]="CheckPermission()" (click)="RemovePointsMode()">Remove Point</li> -->
+        <!-- <li [hidden]="CheckPermission()" (click)="RemoveConnectionsMode()">Remove Connection</li> -->
 
-
-        <li (click)="DrawPoint()">Add Point</li>
-        <li (click)="AddConnectionsMode()">Add Connection</li>
+        <li [hidden]="CheckPermission()" (click)="DrawPoint()">Add Point</li>
+        <li [hidden]="CheckPermission()" (click)="AddConnectionsMode()">Add Connection</li>
         
         
-        <li (click)="CallMetaData()">Edit Metadata</li>
-        <li (click)="SaveMetadata()">Save Metadata</li>
-        <li (click)="ClearAnnotations()">Clear All</li>
+        <li [hidden]="CheckPermission()" (click)="CallMetaData()">Edit Metadata</li>
+        <li [hidden]="CheckPermission()" (click)="SaveMetadata()">Save Metadata</li>
+        <li [hidden]="CheckPermission()" (click)="ClearAnnotations()">Clear All</li>
 
         <!-- <li (click)="FreeDrawLine()">Free Draw</li> -->
         <!-- <li (click)="Text()">Text</li> -->

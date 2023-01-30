@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { ProductsListService } from '../products-list.service';
 import { Pipe, PipeTransform } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-products-list',
@@ -13,10 +14,14 @@ export class ProductsListComponent implements OnInit {
   constructor(
     private imageCanvasEditingService: ImageCanvasEditingService,
     private productsListService: ProductsListService,
+    private router: Router,
   ) { }
   
-  @ViewChild('addButton') addButton;
+  ADMIN_PERMISSIONS = false
+
   @ViewChild('findButton') findButton;
+  @ViewChild('addButton') addButton;
+  @ViewChild('removeButton') removeButton;
 
   filterValue: string;
 
@@ -26,6 +31,10 @@ export class ProductsListComponent implements OnInit {
   selectedProducts = JSON
 
   ngOnInit(): void {
+    if (this.router.url == '/admin') {
+      this.ADMIN_PERMISSIONS = true
+    }
+
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
       this.selectedProducts['products'] = []
       //this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
@@ -51,8 +60,13 @@ export class ProductsListComponent implements OnInit {
         this.productIndex++;
       }
 
-      //this.addButton.nativeElement.style.display = "block";
       this.findButton.nativeElement.style.display = "block";
+      
+
+      if(this.ADMIN_PERMISSIONS) {
+        this.addButton.nativeElement.style.display = "block";
+        this.removeButton.nativeElement.style.display = "block";
+      }
     })
   }
 
@@ -74,12 +88,16 @@ export class ProductsListComponent implements OnInit {
     this.productsListService.setSelectedProduct(selectedProductStatus)
   }
 
+  findPath() {
+    this.productsListService.setProducts(this.selectedProducts)
+  }
+
   addProduct(){
     console.log('Open Add Product')
   }
 
-  findPath() {
-    this.productsListService.setProducts(this.selectedProducts)
+  removeProduct(){
+    console.log('Open Remove Product')
   }
 }
 

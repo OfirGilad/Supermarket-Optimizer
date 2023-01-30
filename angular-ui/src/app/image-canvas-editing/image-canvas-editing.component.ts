@@ -4,6 +4,7 @@ import { ProductsListService } from '../products-list.service';
 import { FindPathService } from '../find-path.service';
 import { MetadataService } from '../metadata.service';
 import { fabric } from 'fabric';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-image-canvas-editing',
@@ -21,7 +22,10 @@ export class ImageCanvasEditingComponent implements OnInit {
     private productsListService: ProductsListService,
     private findPathService: FindPathService,
     private metadataService: MetadataService,
+    private router: Router,
   ) { }
+
+  ADMIN_PERMISSIONS = false
 
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<HTMLCanvasElement>;  
@@ -38,7 +42,10 @@ export class ImageCanvasEditingComponent implements OnInit {
   numberOfSelectedProducts = 0
 
   ngOnInit(): void {
-
+    if (this.router.url == '/admin') {
+      this.ADMIN_PERMISSIONS = true
+    }
+    
     // Clean Canvas
     // this.ctx = this.canvas.nativeElement.getContext('2d');
     // this.image.src = "";
@@ -1298,6 +1305,10 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
   // Buttons Implementation - END
 
+
+  CheckPermission() {
+    return !this.ADMIN_PERMISSIONS
+  }
 
   disappearContext(){
     this.menu.nativeElement.style.display = "none";

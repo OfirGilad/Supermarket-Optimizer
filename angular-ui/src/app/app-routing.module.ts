@@ -5,11 +5,15 @@ import { ImagesListComponent } from './images-list/images-list.component';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: '/admin',
     pathMatch: 'full',
   },
   {
     path: 'home',
+    component: ImagesListComponent
+  },
+  {
+    path: 'admin',
     component: ImagesListComponent
   }
 ];

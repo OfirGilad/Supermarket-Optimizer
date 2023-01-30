@@ -2,8 +2,8 @@
   <div class="productnav">
     <h1 align="center">Product List</h1>
     
-    <form>
-      <input type="text" [(ngModel)]="filterValue" name="filterValue" class="form-control">
+    <form #filterBar hidden>
+      <input type="text" [(ngModel)]="filterValue" name="filterValue" class="form-control" placeholder="Enter product name">
     </form>
     
 
@@ -19,9 +19,9 @@
     </a>
 
     <b>
-      <input #findButton type="submit" value="Find Path" (click)="findPath()" hidden>
-      <input #addButton type="submit" value="(+) Product" (click)="addProduct()" hidden>
-      <input #removeButton type="submit" value="(-) Product" (click)="removeProduct()" hidden>
+      <input #findButton class="btn-class" type="submit" value="Find Path" (click)="findPath()" hidden>
+      <input #addButton class="btn-class" type="submit" value="(+) Product" (click)="addProduct()" hidden>
+      <input #removeButton class="btn-class" type="submit" value="(-) Product" (click)="removeProduct()" hidden>
     </b>
   </div>
 </div>

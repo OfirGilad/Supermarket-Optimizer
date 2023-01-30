@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { ImageLink } from '../image-link.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-image-link',
@@ -13,10 +14,16 @@ export class ImageLinkComponent implements OnInit {
   dataJSON: JSON;
 
   constructor(
-    private imageCanvasEditingService: ImageCanvasEditingService
+    private imageCanvasEditingService: ImageCanvasEditingService,
+    private router: Router,
   ) { }
+  
+  ADMIN_PERMISSIONS = false
 
   ngOnInit(): void {
+    if (this.router.url == '/admin') {
+      this.ADMIN_PERMISSIONS = true
+    }
   }
 
   openCanvas(imagePath: string, metadataPath: string, productsPath: string) {
@@ -25,5 +32,13 @@ export class ImageLinkComponent implements OnInit {
     this.dataJSON['metadata'] = metadataPath;
     this.dataJSON['products'] = productsPath;
     this.imageCanvasEditingService.setImagePath(this.dataJSON);
+  }
+
+  deleteImage() {
+    console.log('Image deleted');
+  }
+
+  CheckPermission() {
+    return !this.ADMIN_PERMISSIONS
   }
 }

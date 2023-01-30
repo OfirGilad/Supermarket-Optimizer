@@ -15,16 +15,38 @@
     overflow-x: hidden;
     padding-top: 20px;
     cursor: pointer;
-  }
+}
 
-  .sidenav a {
+.sidenav a {
     padding: 6px 8px 6px 16px;
     text-decoration: none;
     font-size: 25px;
     color: #818181;
     display: block;
-  }
-  
-  .sidenav a:hover {
-    color: #f1f1f1;
-  }
+}
+
+.sidenav b {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    background-color: rgba(17, 17, 17, 0.5);
+    margin-left: 5px; /* adjust the value as needed */
+}
+
+.form-control {
+    width: 170px;
+    display: none;
+}
+
+.btn-class1 {
+    padding: 5px 0px;
+    width: 150px;
+    display: none;
+}
+
+.btn-class2 {
+    width: 170px;
+    display: none;
+}

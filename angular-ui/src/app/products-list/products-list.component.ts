@@ -22,6 +22,7 @@ export class ProductsListComponent implements OnInit {
   @ViewChild('findButton') findButton;
   @ViewChild('addButton') addButton;
   @ViewChild('removeButton') removeButton;
+  @ViewChild('filterBar') filterBar;
 
   filterValue: string;
 
@@ -59,9 +60,9 @@ export class ProductsListComponent implements OnInit {
         this.listOfProducts.push({name: key, value: this.productIndex, checked: false})
         this.productIndex++;
       }
-
-      this.findButton.nativeElement.style.display = "block";
       
+      this.filterBar.nativeElement.style.display = "block";
+      this.findButton.nativeElement.style.display = "block";
 
       if(this.ADMIN_PERMISSIONS) {
         this.addButton.nativeElement.style.display = "block";

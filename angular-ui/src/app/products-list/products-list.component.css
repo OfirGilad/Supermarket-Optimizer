@@ -9,31 +9,35 @@
     overflow-x: hidden;
     padding-top: 20px;
     cursor: pointer;
-  }
-  
-  .productnav a {
+}
+
+.productnav a {
     padding: 6px 8px 6px 16px;
     text-decoration: none;
     font-size: 25px;
     color: #818181;
     display: block;
-  }
-  
-  .productnav a:hover {
-    color: #f1f1f1;
-  }
+}
 
-  .productnav b {
+.productnav a:hover {
+    color: #f1f1f1;
+}
+
+.productnav b {
     padding: 6px 8px 6px 16px;
     text-decoration: none;
     font-size: 25px;
     color: #818181;
     display: block;
     background-color: rgba(17, 17, 17, 0.5);
-  }
+}
 
-  .form-control {
+.form-control {
     margin-left: 10px; /* adjust the value as needed */
     width: 180px;
-  }
+}
+
+.btn-class {
+    width: 170px;
+}
   

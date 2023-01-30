@@ -1,0 +1,22 @@
+.market-name:hover {
+    color: #f1f1f1;
+}
+
+.b {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    background-color: rgba(17, 17, 17, 0.5);
+    margin-left: 5px; /* adjust the value as needed */
+    margin: 5px;
+}
+
+.img-responsive {
+    margin-bottom: 5px;
+}
+
+.btn-class {
+    width: 175px;
+}

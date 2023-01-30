@@ -1,9 +1,14 @@
-<h2>{{ image?.name }}</h2>
+<h2 class="market-name">{{ image?.name }}</h2>
 <img 
     src="{{ image?.imagePath }}"
     class="img-responsive"
     (click)="openCanvas(image?.imagePath, image?.metadata, image?.products)"
 />
+
+<b>
+    <button [hidden]="CheckPermission()" class="btn-class" (click)="deleteImage()">Delete Map</button>
+</b>
+
 
 <!-- Sample Images Links -->
 <!-- https://nanonets.com/blog/content/images/2019/08/image-16.png -->

@@ -40,16 +40,18 @@ export class ImageCanvasEditingComponent implements OnInit {
   listOfProducts = []
   productIndex = 0
 
-  selectedProducts = JSON
+  selectedProducts: JSON
   numberOfSelectedProducts = 0
 
+  globalSelectedProduct: JSON
   find_path_status = false
 
   ngOnInit(): void {
     if (this.router.url == '/admin') {
       this.ADMIN_PERMISSIONS = true
     }
-
+    this.globalSelectedProduct = JSON.parse('{}')
+    this.globalSelectedProduct['products'] = []
     this.find_path_status = false
     
     // Clean Canvas
@@ -70,6 +72,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.MetajsonTxt = newImageJSON['metadata'];
 
       // Set product list - START
+      this.selectedProducts = JSON.parse('{}')
       this.selectedProducts['products'] = []
       var json = JSON.parse(newImageJSON['products']);
 
@@ -130,7 +133,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     // Get notifyied on selected product to color
     this.productsListService.selectedProductEvent.subscribe((selectedProductJSON: JSON) => {
       var json = JSON.parse(this.MetajsonTxt)
-      
+      this.globalSelectedProduct['products'] = selectedProductJSON['products']
+
       // Reset Edges Colors
       if (json['Points'] != null) {
         for (let i = 0; i < json['Points'].length; i++) {
@@ -1312,17 +1316,30 @@ export class ImageCanvasEditingComponent implements OnInit {
     for (let i = 0; i < this.temp_points_list.length; i++) {
       this.fabric_canvas.remove(this.temp_points_list[i])
     }
+    this.product_selection_in_progress = false
 
     var json = JSON.parse(this.MetajsonTxt);
     json["Points"][this.selected_point]["products"] = this.selectedProducts["products"]
 
     this.MetajsonTxt = JSON.stringify(json);
     this.MetaDataText.nativeElement.value = this.MetajsonTxt;
-    
-    this.product_selection_in_progress = false
 
-    this.disappearContext()
-    this.OnClick("NONE")
+    for (let i = 0; i < json["Points"].length; i++) {
+      if (json["Points"][i]['color'] != "green") {
+        json["Points"][i]['color'] = "black"
+
+        for (let j = 0; j < json["Points"][i]['products'].length; j++) {
+          if (this.globalSelectedProduct['products'].indexOf(json["Points"][i]['products'][j]) != -1) {
+            json["Points"][i]['color'] = "blue"
+            break
+          }
+        }
+      }
+    }
+    this.MetaDataText.nativeElement.value = JSON.stringify(json);
+    this.SendMetaData()
+
+    //this.OnClick("NONE")
   }
 
   updateCheckedProduct(product, event) {

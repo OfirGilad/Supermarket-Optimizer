@@ -60,13 +60,26 @@ export class ProductsListComponent implements OnInit {
         this.listOfProducts.push({name: key, value: this.productIndex, checked: false})
         this.productIndex++;
       }
-      
+
       this.filterBar.nativeElement.style.display = "block";
       this.findButton.nativeElement.style.display = "block";
 
       if(this.ADMIN_PERMISSIONS) {
         this.addButton.nativeElement.style.display = "block";
         this.removeButton.nativeElement.style.display = "block";
+      }
+    })
+
+    this.imageCanvasEditingService.newSelectedProductEvent.subscribe((newSelectedProductsJSON: JSON) => {
+      for (let i = 0; i < this.listOfProducts.length; i++) {
+        console.log(newSelectedProductsJSON);
+        
+        if (newSelectedProductsJSON['products'].indexOf(this.listOfProducts[i]['name']) != -1) {
+          this.listOfProducts[i]['checked'] = true
+        }
+        else {
+          this.listOfProducts[i]['checked'] = false
+        }
       }
     })
   }

@@ -19,7 +19,7 @@ export class ProductsListService {
     this.recentProductStatus = newSelectedProductJSON;
     //console.log(this.recentProductStatus)
     this.selectedProductEvent.emit(newSelectedProductJSON);
-}
+  }
 
   getProducts() {
       return this.productsJSON;

@@ -173,7 +173,7 @@ export class ProductsListComponent implements OnInit {
 
   async addProduct() {
     var newProductName = this.nameTexbox.nativeElement.value
-    if (newProductName == "") {
+    if (newProductName.trim() == "") {
       alert("Product name cannot be empty")
     }
     else {

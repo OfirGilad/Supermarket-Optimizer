@@ -35,6 +35,7 @@ export class ImageLinkComponent implements OnInit {
   }
 
   deleteImage() {
+    // Send message to server
     console.log('Image deleted');
   }
 

@@ -58,11 +58,32 @@ export class ImagesListComponent implements OnInit {
   onFileChange(event) {
     const file = event.target.files[0];
     this.selectedFile = file
+    console.log(this.selectedFile);
+    
     // Do whatever you need with the file, such as uploading it to a server.
   }
 
   uploadImage() {
-    console.log('Image uploaded');
+    var alert_messages = "The upload failed due to the following reason(s): \n"
+    var validMarket= true
+
+    var market_name = this.nameTexbox.nativeElement.value;
+    if (this.selectedFile == null) {
+      alert_messages += "(*) No file was selected \n"
+      validMarket = false
+    }
+    if (market_name.trim() == "") {
+      alert_messages += "(*) Market name cannot be empty \n"
+      validMarket = false
+    }
+
+    if (validMarket) {
+      // Send message to server
+      console.log('Image uploaded');
+    }
+    else {
+      alert(alert_messages)
+    }
   }
 
   CheckPermission() {

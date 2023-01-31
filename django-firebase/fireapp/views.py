@@ -94,15 +94,15 @@ def Images(request, id=0):
         metadata = '{}'
         products = '{}'
 
-        # NEED TO VERIFY IF WORKS - START
-        originalImage = skimage.io.imread(image)
-        pil_img = Image.fromarray(originalImage)
-        pil_img.save("ImageUpload/" + image_name)
-        url = uploadToFirebase("ImageMetadata/" + image)
-        # NEED TO VERIFY IF WORKS - END
-
         utc = str(datetime.utcnow())
         utc = utc.replace(":", ".")
+
+        # NEED TO VERIFY IF WORKS - START
+        original_image = skimage.io.imread(image)
+        pil_img = Image.fromarray(original_image)
+        pil_img.save("ImageUpload/" + utc + "-" + image_name)
+        url = uploadToFirebase("ImageUpload/" + utc + "-" + image_name)
+        # NEED TO VERIFY IF WORKS - END
 
         # Creating Metadata txt file
         file1 = open("ImageMetadata/metadata-" + utc + ".txt", "a")

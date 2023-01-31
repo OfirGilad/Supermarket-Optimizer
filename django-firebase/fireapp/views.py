@@ -86,23 +86,20 @@ def Images(request, id=0):
 
     # Uploading image to firebase
     if request.method == 'POST':
-        params = request.body.decode()
-        params = json.loads(params)
-        name = params["name"]
-        image = params["image"]
-        image_name = params["image_name"]
+        name = request.POST.get('name')
+        image_name = request.POST.get('image_name')
+        image = request.FILES.get('image')
         metadata = '{}'
         products = '{}'
 
         utc = str(datetime.utcnow())
         utc = utc.replace(":", ".")
 
-        # NEED TO VERIFY IF WORKS - START
+        # Saving image locally and uploading to firebase
         original_image = skimage.io.imread(image)
         pil_img = Image.fromarray(original_image)
         pil_img.save("ImageUpload/" + utc + "-" + image_name)
         url = uploadToFirebase("ImageUpload/" + utc + "-" + image_name)
-        # NEED TO VERIFY IF WORKS - END
 
         # Creating Metadata txt file
         file1 = open("ImageMetadata/metadata-" + utc + ".txt", "a")
@@ -128,7 +125,7 @@ def Images(request, id=0):
         }
 
         i = len(images)
-        database.child('Images').child(str(i)).push(new_data)
+        database.child('Images').child(str(i)).set(new_data)
 
         return JsonResponse("Map Saved", safe=False)
 

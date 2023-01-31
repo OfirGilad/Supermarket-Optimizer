@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
@@ -12,14 +12,19 @@ export class ImagesService {
       private http: HttpClient
     ) { }
 
-    imagesRequest(action: string, jsonParamsData = JSON.parse('{}')): Observable<any[]> {
+    imagesRequest(action: string, jsonParamsData, file): Observable<any[]> {
       // Getting all Images
       if (action == "GET") {
         return this.http.get<any[]>(this.APIUrl + '/Images/');
       }
       // Posting new Image
       else if (action == "POST") {
-        return this.http.post<any[]>(this.APIUrl + '/Images/', jsonParamsData);
+        const formData = new FormData();
+        formData.append('name', jsonParamsData['name']);
+        formData.append('image_name', jsonParamsData['image_name']);
+        formData.append('image', file, file.name);
+
+        return this.http.post<any[]>(this.APIUrl + '/Images/', formData);
       }
       // Deleting existing Image
       else if (action == "DELETE") {

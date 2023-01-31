@@ -20,7 +20,7 @@ export class ProductsListService {
 
   setSelectedProduct(newSelectedProductJSON: JSON) {
     this.recentProductStatus = newSelectedProductJSON;
-    console.log(this.recentProductStatus)
+    //console.log(this.recentProductStatus)
     this.selectedProductEvent.emit(newSelectedProductJSON);
   }
 

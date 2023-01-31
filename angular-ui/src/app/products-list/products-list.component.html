@@ -2,17 +2,19 @@
   <div class="productnav">
     <h1 align="center">Product List</h1>
     
-    <form #filterBar hidden>
-      <input type="text" [(ngModel)]="filterValue" name="filterValue" class="form-control" placeholder="Enter product name">
-    </form>
+    <b>
+      <form class="btn-class1">
+        <input #filterBar type="text" [(ngModel)]="filterValue" name="filterValue" class="form-control" placeholder="Enter product name">
+      </form>
+    </b>
     
-
     <a *ngFor="let product of listOfProducts | filter:filterValue">
       <label class="product-list">
         <input type="checkbox" 
               name="products" 
               value={{product.value}}
               [checked]="product.checked"
+              [disabled]="product.disabled"
               (change)="updateCheckedProduct(product, $event)"/>
         {{product.name}}
       </label>

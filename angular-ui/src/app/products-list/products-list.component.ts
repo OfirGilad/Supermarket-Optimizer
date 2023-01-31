@@ -64,7 +64,8 @@ export class ProductsListComponent implements OnInit {
       this.productIndex = 0;
 
       for (let key in json) {
-        this.listOfProducts.push({name: key, value: this.productIndex, checked: false})
+        var status = !json[key]
+        this.listOfProducts.push({name: key, value: this.productIndex, checked: false, disabled: status})
         this.productIndex++;
       }
 
@@ -135,8 +136,8 @@ export class ProductsListComponent implements OnInit {
   }
 
   enableProduct(product_value) {
-    console.log(product_value)
-    console.log('Open Remove Product')
+    this.listOfProducts[product_value]["disabled"] = !this.listOfProducts[product_value]["disabled"]
+    console.log('Enabled/Disabled status changed')
   }
 
   removeProduct(product_value) {
@@ -145,6 +146,27 @@ export class ProductsListComponent implements OnInit {
   }
 
   addProduct() {
+    var newProductName = this.nameTexbox.nativeElement.value
+    if (newProductName == "") {
+      alert("Product name cannot be empty")
+    }
+    else {
+      var validName = true
+      for (let i = 0; i < this.listOfProducts.length; i++) {
+        if (this.listOfProducts[i]["name"] == newProductName) {
+          validName = false
+          break
+        }
+      }
+      if (validName) {
+        this.listOfProducts.push({name: newProductName, value: this.productIndex, checked: false, disabled: false})
+        this.productIndex++
+      }
+      else {
+        alert("Product name already exists")
+      }
+    }
+      
     console.log('Open Add Product')
   }
  

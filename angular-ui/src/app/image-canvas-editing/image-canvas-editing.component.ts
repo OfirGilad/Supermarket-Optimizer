@@ -89,7 +89,8 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.productIndex = 0;
 
       for (let key in json) {
-        this.listOfProducts.push({name: key, value: this.productIndex, checked: false})
+        var status = !json[key]
+        this.listOfProducts.push({name: key, value: this.productIndex, checked: false, disabled: status})
         this.productIndex++;
       }
       // Set product list - END
@@ -134,12 +135,13 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.productsListService.selectedProductEvent.subscribe((selectedProductJSON: JSON) => {
       var json = JSON.parse(this.MetajsonTxt)
       this.globalSelectedProduct['products'] = selectedProductJSON['products']
+      var points = json['Points']
 
       // Reset Edges Colors
-      if (json['Points'] != null) {
-        for (let i = 0; i < json['Points'].length; i++) {
-          if (json["Points"][i]["products"].indexOf(selectedProductJSON["name"]) != -1) {
-            if(json["Points"][i]["color"] != "green") {
+      if (points != null) {
+        for (let i = 0; i < points.length; i++) {
+          if (points[i]["products"].indexOf(selectedProductJSON["name"]) != -1) {
+            if(points[i]["color"] != "green") {
               if (selectedProductJSON["value"] == true) {
                 json["Points"][i]["color"] = "blue"
               }
@@ -152,6 +154,32 @@ export class ImageCanvasEditingComponent implements OnInit {
       }
       this.MetaDataText.nativeElement.value = JSON.stringify(json)
       this.SendMetaData()
+    })
+
+    // Product got added to the list
+    this.productsListService.productAddedEvent.subscribe((updateProductsListJSON: JSON) => {
+      this.listOfProducts = updateProductsListJSON['products']
+    })
+    
+    // Product got removed from the list
+    this.productsListService.productRemovedEvent.subscribe((updateProductsListJSON: JSON) => {
+      this.listOfProducts = updateProductsListJSON['products']
+      var productToRemove = updateProductsListJSON['removedName']
+      console.log(productToRemove);
+      
+
+      var json = JSON.parse(this.MetajsonTxt)
+      var points = json["Points"]
+      // Reset Edges Colors
+      if (points != null) {
+        for (let i = 0; i < points.length; i++) {
+          if (points[i]["products"].indexOf(productToRemove) != -1) {
+            json["Points"][i]["products"] = this.RemoveElementFromStringArray(points[i]["products"], productToRemove)
+          }
+        }
+      }
+      this.MetaDataText.nativeElement.value = JSON.stringify(json)
+      this.MetajsonTxt = this.MetaDataText.nativeElement.value
     })
 
     // Add events
@@ -1348,8 +1376,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.selectedProducts['products'].push(product.name)
     }
     else {
-      let index = this.selectedProducts['products'].indexOf(product.name)
-      this.selectedProducts['products'].splice(index, 1)
+      this.selectedProducts['products'] = this.RemoveElementFromStringArray(this.selectedProducts['products'], product.name)
     }
     this.numberOfSelectedProducts = this.selectedProducts['products'].length
   }
@@ -1382,16 +1409,16 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.old_starting_point = this.new_starting_point
     this.SendMetaData()
 
-    this.imageCanvasEditingService.setNewProducts(this.selectedProducts)
-    this.productsListService.setProducts(this.selectedProducts)
+    this.imageCanvasEditingService.setNewSelectedProducts(this.selectedProducts)
+    this.productsListService.requestPath(this.selectedProducts)
   }
 
   RemoveElementFromStringArray(stringArray, element: string) {
-    stringArray.forEach((value,index)=>{
+    stringArray.forEach((value, index)=>{
         if(value==element) stringArray.splice(index,1);
     });
     return stringArray
-}
+  }
 
   // Buttons Implementation - END
 

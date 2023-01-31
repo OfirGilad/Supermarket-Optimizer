@@ -87,7 +87,7 @@ export class ProductsListComponent implements OnInit {
           removeBTN.nativeElement.style.display = "block";
         });
         this.statusButtons.forEach(statusBTN => {
-          // console.log(removeBTN.nativeElement)
+          // console.log(statusBTN.nativeElement)
           statusBTN.nativeElement.style.display = "block";
         });
       }
@@ -115,7 +115,7 @@ export class ProductsListComponent implements OnInit {
 
   updateCheckedProduct(product, event) {
     this.listOfProducts[product.value].checked = event.target.checked;
-    //console.log(this.listOfProducts)
+    // console.log(this.listOfProducts)
     if (event.target.checked == true) {
       this.selectedProducts['products'].push(product.name)
     }
@@ -125,14 +125,15 @@ export class ProductsListComponent implements OnInit {
     }
 
     // Request to update the point on the canvas
-    var selectedProductStatus = JSON
+    var selectedProductStatus: JSON
+    selectedProductStatus = JSON.parse('{}')
     selectedProductStatus["name"] = product.name
     selectedProductStatus["value"] = event.target.checked
     this.productsListService.setSelectedProduct(selectedProductStatus)
   }
 
   findPath() {
-    this.productsListService.setProducts(this.selectedProducts)
+    this.productsListService.requestPath(this.selectedProducts)
   }
 
   enableProduct(product_value) {
@@ -141,11 +142,36 @@ export class ProductsListComponent implements OnInit {
   }
 
   removeProduct(product_value) {
-    console.log(product_value)
-    console.log('Open Remove Product')
+    var updatedList = this.listOfProducts
+    let productName = this.listOfProducts[product_value]['name']
+
+    updatedList.forEach((value, index)=>{
+      if(value['value']==product_value) updatedList.splice(index,1);
+    });
+
+    this.productIndex = 0
+    for (let i = 0; i < updatedList.length; i++) {
+      this.listOfProducts[i]["value"] =  this.productIndex
+      this.productIndex++
+    }
+
+    // Send request to canvas to remove the blue color from the deleted product
+    var selectedProductStatus: JSON
+    selectedProductStatus = JSON.parse('{}')
+    selectedProductStatus["name"] = productName
+    selectedProductStatus["value"] = false
+    this.productsListService.setSelectedProduct(selectedProductStatus)
+
+    // Send updated list
+    var json = JSON.parse('{}')
+    json['products'] = this.listOfProducts
+    json['removedName'] = productName
+    this.productsListService.setUpdatedProductsList(json, "remove")
+
+    console.log('Product removed successfully')
   }
 
-  addProduct() {
+  async addProduct() {
     var newProductName = this.nameTexbox.nativeElement.value
     if (newProductName == "") {
       alert("Product name cannot be empty")
@@ -161,13 +187,30 @@ export class ProductsListComponent implements OnInit {
       if (validName) {
         this.listOfProducts.push({name: newProductName, value: this.productIndex, checked: false, disabled: false})
         this.productIndex++
+
+        await this.sleep(10);
+
+        // Display Remove and Enable/Disable buttons
+        this.removeButtons.forEach(removeBTN => {
+          // console.log(removeBTN.nativeElement)
+          removeBTN.nativeElement.style.display = "block";
+        });
+        this.statusButtons.forEach(statusBTN => {
+          // console.log(statusBTN.nativeElement)
+          statusBTN.nativeElement.style.display = "block";
+        });
+
+        // Send updated list
+        var json = JSON.parse('{}')
+        json['products'] = this.listOfProducts
+        this.productsListService.setUpdatedProductsList(json, "add")
+
+        console.log('Product added successfully')
       }
       else {
         alert("Product name already exists")
       }
     }
-      
-    console.log('Open Add Product')
   }
  
   saveProducts() {

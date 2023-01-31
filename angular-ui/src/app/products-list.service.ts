@@ -6,13 +6,16 @@ import { EventEmitter, Injectable } from "@angular/core";
 export class ProductsListService {
   requestPathEvent: EventEmitter<JSON> = new EventEmitter();
   selectedProductEvent: EventEmitter<JSON> = new EventEmitter();
-  productsJSON: JSON;
+  productAddedEvent: EventEmitter<JSON> = new EventEmitter();
+  productRemovedEvent: EventEmitter<JSON> = new EventEmitter();
+  requestedProductsJSON: JSON;
   recentProductStatus: JSON;
+  updatedProductsListJSON: JSON;
 
-  setProducts(newProductsJSON: JSON) {
-      this.productsJSON = newProductsJSON;
+  requestPath(newRequestedProductsJSON: JSON) {
+      this.requestedProductsJSON = newRequestedProductsJSON;
       //console.log(this.productsJSON)
-      this.requestPathEvent.emit(newProductsJSON);
+      this.requestPathEvent.emit(newRequestedProductsJSON);
   }
 
   setSelectedProduct(newSelectedProductJSON: JSON) {
@@ -21,7 +24,17 @@ export class ProductsListService {
     this.selectedProductEvent.emit(newSelectedProductJSON);
   }
 
-  getProducts() {
-      return this.productsJSON;
+  setUpdatedProductsList(newUpdatedProductsListJSON: JSON, action: string) {
+    this.updatedProductsListJSON = newUpdatedProductsListJSON;
+    //console.log(this.updatedProductsListJSON)
+    if (action == "add") {
+      this.productAddedEvent.emit(newUpdatedProductsListJSON);
+    }
+    else if (action == "remove") {
+      this.productRemovedEvent.emit(newUpdatedProductsListJSON);
+    }
+    else {
+      alert("Invalid action")
+    }
   }
 }

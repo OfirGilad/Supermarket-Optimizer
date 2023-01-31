@@ -1,12 +1,12 @@
 .main {
-    margin-left: 220px; /* Same as the width of the sidenav */
-    margin-right: 220px; /* Same as the width of the productnav */
+    margin-left: 230px; /* Same as the width of the sidenav */
+    margin-right: 230px; /* Same as the width of the productnav */
     padding: 0px 10px;
 }
 
 .sidenav {
     height: 100%;
-    width: 220px;
+    width: 230px;
     position: fixed;
     z-index: 1;
     top: 0;

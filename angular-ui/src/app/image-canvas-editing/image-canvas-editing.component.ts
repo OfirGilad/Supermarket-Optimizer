@@ -24,7 +24,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     private findPathService: FindPathService,
     private metadataService: MetadataService,
     private router: Router,
-    private imagesSerivce: ImagesService,
+    private imagesService: ImagesService,
   ) { }
 
   ADMIN_PERMISSIONS = false
@@ -1227,10 +1227,10 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     console.log("Sent Json:", jsonParams)
 
-    this.metadataService.saveMetadataToFirebase(jsonParams).subscribe((data: any)=>{
+    this.metadataService.saveMetadataInFirebase(jsonParams).subscribe((data: any)=>{
       console.log("Metadata URL:", data);
 
-      this.imagesSerivce.updateData("Requesting Server updated data")
+      this.imagesService.updateData("Requesting Server updated data")
     })
   }
 

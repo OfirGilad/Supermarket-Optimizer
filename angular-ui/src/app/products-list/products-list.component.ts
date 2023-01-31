@@ -3,6 +3,8 @@ import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { ProductsListService } from '../products-list.service';
 import { Pipe, PipeTransform } from '@angular/core';
 import { Router } from '@angular/router';
+import { ProductsService } from '../products.service';
+import { ImagesService } from '../images.service';
 
 @Component({
   selector: 'app-products-list',
@@ -15,6 +17,8 @@ export class ProductsListComponent implements OnInit {
     private imageCanvasEditingService: ImageCanvasEditingService,
     private productsListService: ProductsListService,
     private router: Router,
+    private productsService: ProductsService,
+    private imagesService: ImagesService,
   ) { }
   
   ADMIN_PERMISSIONS = false
@@ -36,7 +40,9 @@ export class ProductsListComponent implements OnInit {
   listOfProducts = []
   ProductsjsonTxt: string = "{}"
   productIndex = 0
-  selectedProducts = JSON
+  selectedProducts: JSON
+
+  currentImagePath = ""
 
   async ngOnInit(): Promise<void> {
     if (this.router.url == '/admin') {
@@ -44,9 +50,11 @@ export class ProductsListComponent implements OnInit {
     }
 
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe(async (newImageJSON: JSON) => {
+      this.selectedProducts = JSON.parse('{}')
       this.selectedProducts['products'] = []
       //this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
       this.ProductsjsonTxt = newImageJSON['products'];
+      this.currentImagePath = newImageJSON['url']
       console.log(this.ProductsjsonTxt)
 
       var json = JSON.parse(this.ProductsjsonTxt);
@@ -214,7 +222,28 @@ export class ProductsListComponent implements OnInit {
   }
  
   saveProducts() {
-    console.log('Send message to server')
+    var products = {}
+
+    for (let i = 0; i < this.listOfProducts.length; i++) {
+      if (this.listOfProducts[i]["disabled"] == false) {
+        products[this.listOfProducts[i]["name"]] = 1
+      }
+      else {
+        products[this.listOfProducts[i]["name"]] = 0
+      }
+    }
+
+    var jsonParams = JSON.parse('{}')
+    jsonParams['url'] = this.currentImagePath
+    jsonParams['products'] = JSON.stringify(products)
+
+    console.log("Sent Json:", jsonParams)
+
+    this.productsService.saveProductsInFirebase(jsonParams).subscribe((data: any)=>{
+      console.log("Products URL:", data);
+
+      this.imagesService.updateData("Requesting Server updated data")
+    })
   }
 
   CheckPermission() {

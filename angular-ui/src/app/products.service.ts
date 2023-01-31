@@ -6,14 +6,14 @@ import { Observable } from "rxjs";
 @Injectable({
     providedIn: 'root'
 })
-export class MetadataService {
+export class ProductsService {
     readonly APIUrl = "http://127.0.0.1:8000";
 
     constructor(
         private http: HttpClient
     ) { }
 
-    saveMetadataInFirebase(jsonParamsData: JSON): Observable<any[]>{
-        return this.http.post<any[]>(this.APIUrl + '/saveMetadata/', jsonParamsData);
+    saveProductsInFirebase(jsonParamsData: JSON): Observable<any[]>{
+        return this.http.post<any[]>(this.APIUrl + '/saveProducts/', jsonParamsData);
     }
 }

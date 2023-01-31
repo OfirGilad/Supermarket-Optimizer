@@ -1355,6 +1355,8 @@ export class ImageCanvasEditingComponent implements OnInit {
     for (let i = 0; i < json["Points"].length; i++) {
       if (json["Points"][i]['color'] != "green") {
         json["Points"][i]['color'] = "black"
+        
+        console.log(this.globalSelectedProduct)
 
         for (let j = 0; j < json["Points"][i]['products'].length; j++) {
           if (this.globalSelectedProduct['products'].indexOf(json["Points"][i]['products'][j]) != -1) {

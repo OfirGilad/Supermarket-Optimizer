@@ -137,6 +137,7 @@ export class ProductsListComponent implements OnInit {
     selectedProductStatus = JSON.parse('{}')
     selectedProductStatus["name"] = product.name
     selectedProductStatus["value"] = event.target.checked
+    selectedProductStatus["products"] = this.selectedProducts['products']
     this.productsListService.setSelectedProduct(selectedProductStatus)
   }
 
@@ -168,6 +169,7 @@ export class ProductsListComponent implements OnInit {
     selectedProductStatus = JSON.parse('{}')
     selectedProductStatus["name"] = productName
     selectedProductStatus["value"] = false
+    selectedProductStatus["products"] = this.selectedProducts['products']
     this.productsListService.setSelectedProduct(selectedProductStatus)
 
     // Send updated list

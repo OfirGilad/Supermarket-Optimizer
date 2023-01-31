@@ -8,9 +8,18 @@ urlpatterns = [
     #re_path(r'^openCVHandler/$', views.OpenCVHandler),
     #re_path(r'^openCVHandler/([0-9]+)$', views.OpenCVHandler),
 
-    re_path(r'^findPath/$', views.FindPath),
-    re_path(r'^findPath/([0-9]+)$', views.FindPath),
-
     re_path(r'^saveMetadata/$', views.SaveMetadata),
     re_path(r'^saveMetadata/([0-9]+)$', views.SaveMetadata),
+
+    re_path(r'^saveProducts/$', views.SaveProducts),
+    re_path(r'^saveProducts/([0-9]+)$', views.SaveProducts),
+
+    re_path(r'^saveImage/$', views.SaveImage),
+    re_path(r'^saveImage/([0-9]+)$', views.SaveImage),
+
+    re_path(r'^removeImage/$', views.RemoveImage),
+    re_path(r'^removeImage/([0-9]+)$', views.RemoveImage),
+
+    re_path(r'^findPath/$', views.FindPath),
+    re_path(r'^findPath/([0-9]+)$', views.FindPath),
 ]

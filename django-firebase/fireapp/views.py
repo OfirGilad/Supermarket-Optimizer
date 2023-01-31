@@ -117,6 +117,45 @@ def SaveMetadata(request, id=0):
 
 
 @csrf_exempt
+def SaveProducts(request, id=0):
+    # Saving image product_list to firebase
+    if request.method == 'POST':
+        params = request.body.decode()
+        params = json.loads(params)
+        url = params["url"]
+        products = params["products"]
+        utc = str(datetime.utcnow())
+        utc = utc.replace(":", ".")
+        # Creating Metadata txt file
+        file = open("ImageProducts/products-" + utc + ".txt", "a")
+        file.write(products)
+        file.close()
+
+        ProductsURL = uploadToFirebase("ImageProducts/products-" + utc + ".txt")
+
+        images = database.child('Images').get().val()
+
+        i = 0
+        for image in images:
+            imageURL = image['url']
+            if imageURL == url:
+                database.child('Images').child(str(i)).child("products").set(ProductsURL)
+            i += 1
+
+        return JsonResponse(ProductsURL, safe=False)
+
+
+@csrf_exempt
+def SaveImage(request, id=0):
+    return JsonResponse("Map Saved", safe=False)
+
+
+@csrf_exempt
+def RemoveImage(request, id=0):
+    return JsonResponse("Map Removed", safe=False)
+
+
+@csrf_exempt
 def FindPath(request, id=0):
     if request.method == 'POST':
         params = request.body.decode()

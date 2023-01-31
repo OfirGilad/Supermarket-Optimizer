@@ -30,9 +30,7 @@ export class ImagesService {
       else if (action == "DELETE") {
         const options = {
           body: {
-            name: jsonParamsData["name"],
-            image: jsonParamsData["image"],
-            image_name: jsonParamsData["image_name"],
+            url: jsonParamsData["url"],
           },
         };
         return this.http.delete<any[]>(this.APIUrl + '/Images/', options);

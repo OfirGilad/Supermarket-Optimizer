@@ -148,9 +148,19 @@ def Images(request, id=0):
             # If image found, overwriting next images on previous image, and deleting the last one
             if found_flag:
                 if i != images_length - 1:
-                    database.child('Images').child(str(i)).set(database.child('Images').child(str(i + 1)))
+                    next_image_data = database.child('Images').child(str(i + 1)).get().val()
+
+                    metadata = next_image_data['metadata']
+                    name = next_image_data['name']
+                    products = next_image_data['products']
+                    img_url = next_image_data['url']
+                    database.child('Images').child(str(i)).child('metadata').set(metadata)
+                    database.child('Images').child(str(i)).child('name').set(name)
+                    database.child('Images').child(str(i)).child("products").set(products)
+                    database.child('Images').child(str(i)).child("url").set(img_url)
                 else:
                     database.child('Images').child(str(i)).remove()
+                    print("HOLD UP")
             i += 1
 
         return JsonResponse("Map Deleted", safe=False)

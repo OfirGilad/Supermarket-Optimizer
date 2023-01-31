@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ImageCanvasEditingService } from '../image-canvas-editing.service';
 import { ImageLink } from '../image-link.model';
 import { Router } from '@angular/router';
+import { ImagesService } from '../images.service';
 
 @Component({
   selector: 'app-image-link',
@@ -16,6 +17,7 @@ export class ImageLinkComponent implements OnInit {
   constructor(
     private imageCanvasEditingService: ImageCanvasEditingService,
     private router: Router,
+    private imagesService: ImagesService,
   ) { }
   
   ADMIN_PERMISSIONS = false
@@ -36,6 +38,17 @@ export class ImageLinkComponent implements OnInit {
 
   deleteImage() {
     // Send message to server
+    var jsonParams = JSON.parse('{}');
+    jsonParams["url"] = this.image.imagePath
+
+    console.log("Sent Json:", jsonParams)
+
+      this.imagesService.imagesRequest("DELETE", jsonParams, "NONE").subscribe((data: any)=>{
+        console.log(data);
+
+        this.imagesService.updateData("Requesting Server updated data")
+      })
+    
     console.log('Image deleted');
   }
 

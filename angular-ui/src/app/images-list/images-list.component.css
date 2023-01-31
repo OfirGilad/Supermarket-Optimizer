@@ -1,12 +1,12 @@
 .main {
-    margin-left: 200px; /* Same as the width of the sidenav */
-    margin-right: 200px; /* Same as the width of the productnav */
+    margin-left: 220px; /* Same as the width of the sidenav */
+    margin-right: 220px; /* Same as the width of the productnav */
     padding: 0px 10px;
 }
 
 .sidenav {
     height: 100%;
-    width: 200px;
+    width: 220px;
     position: fixed;
     z-index: 1;
     top: 0;
@@ -36,7 +36,7 @@
 }
 
 .form-control {
-    width: 170px;
+    width: 190px;
     display: none;
 }
 
@@ -47,6 +47,6 @@
 }
 
 .btn-class2 {
-    width: 170px;
+    width: 190px;
     display: none;
 }

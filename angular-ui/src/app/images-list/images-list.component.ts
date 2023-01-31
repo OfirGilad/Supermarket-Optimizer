@@ -21,7 +21,7 @@ export class ImagesListComponent implements OnInit {
 
   ADMIN_PERMISSIONS = false
 
-  @ViewChild('nameButton') nameButton;
+  @ViewChild('nameTexbox') nameTexbox;
   @ViewChild('fileButton') fileButton;
   @ViewChild('uploadButton') uploadButton;
 
@@ -46,7 +46,7 @@ export class ImagesListComponent implements OnInit {
 
       // Display Upload New Market button
       if (this.ADMIN_PERMISSIONS) {
-        this.nameButton.nativeElement.style.display = "block";
+        this.nameTexbox.nativeElement.style.display = "block";
         this.fileButton.nativeElement.style.display = "block";
         this.uploadButton.nativeElement.style.display = "block";
       }

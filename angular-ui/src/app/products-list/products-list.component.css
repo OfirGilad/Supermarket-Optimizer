@@ -1,6 +1,6 @@
 .productnav {
     height: 100%;
-    width: 200px;
+    width: 220px;
     position: fixed;
     z-index: 1;
     top: 0;
@@ -33,8 +33,9 @@
 }
 
 .form-control {
-    margin-left: 10px; /* adjust the value as needed */
-    width: 180px;
+    margin-left: 0px; /* adjust the value as needed */
+    width: 190px;
+    display: none;
 }
 
 .btn-class1 {

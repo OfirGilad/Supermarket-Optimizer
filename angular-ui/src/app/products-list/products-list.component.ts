@@ -19,10 +19,17 @@ export class ProductsListComponent implements OnInit {
   
   ADMIN_PERMISSIONS = false
 
-  @ViewChild('findButton') findButton;
-  @ViewChild('addButton') addButton;
-  @ViewChildren('removeButtons') removeButtons: QueryList<ElementRef>;
   @ViewChild('filterBar') filterBar;
+  
+  @ViewChildren('statusButtons') statusButtons: QueryList<ElementRef>;
+  @ViewChildren('removeButtons') removeButtons: QueryList<ElementRef>;
+
+  @ViewChild('newProductLabel') newProductLabel;
+  @ViewChild('nameTexbox') nameTexbox;
+
+  @ViewChild('addButton') addButton;
+  @ViewChild('findButton') findButton;
+  @ViewChild('saveButton') saveButton;
 
   filterValue: string;
 
@@ -65,7 +72,11 @@ export class ProductsListComponent implements OnInit {
       this.findButton.nativeElement.style.display = "block";
 
       if(this.ADMIN_PERMISSIONS) {
+        this.newProductLabel.nativeElement.style.display = "block";
+        this.nameTexbox.nativeElement.style.display = "block";
         this.addButton.nativeElement.style.display = "block";
+        
+        this.saveButton.nativeElement.style.display = "block";
         // console.log(this.removeButtons)
         
         await this.sleep(10);
@@ -119,13 +130,26 @@ export class ProductsListComponent implements OnInit {
     this.productsListService.setProducts(this.selectedProducts)
   }
 
-  addProduct(){
-    console.log('Open Add Product')
-  }
-
-  removeProduct(product_value){
+  enableProduct(product_value) {
     console.log(product_value)
     console.log('Open Remove Product')
+  }
+
+  removeProduct(product_value) {
+    console.log(product_value)
+    console.log('Open Remove Product')
+  }
+
+  addProduct() {
+    console.log('Open Add Product')
+  }
+ 
+  saveProducts() {
+    console.log('Send message to server')
+  }
+
+  CheckPermission() {
+    return !this.ADMIN_PERMISSIONS
   }
 }
 

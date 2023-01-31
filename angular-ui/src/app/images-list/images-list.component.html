@@ -3,13 +3,13 @@
   <app-image-canvas-editing></app-image-canvas-editing>
   <app-products-list></app-products-list>
   <div class="sidenav">
-    <h1 align="center">Markets</h1>
+    <h1 align="center">Market Maps</h1>
     <a *ngFor="let imageLink of listOfImages">
       <app-image-link [image]="imageLink"></app-image-link>
     </a>
     <b>
       <h2 [hidden]="CheckPermission()">Upload New Market</h2>
-      <input #nameButton class="form-control" type="text" placeholder="Enter market name">
+      <input #nameTexbox class="form-control" type="text" placeholder="Enter market name">
       <input #fileButton class="btn-class1" type="file" (change)="onFileChange($event)">
       <button #uploadButton class="btn-class2" (click)="uploadImage()">Upload Map</button>
     </b>

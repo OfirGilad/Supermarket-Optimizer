@@ -17,14 +17,18 @@
         {{product.name}}
       </label>
       <label class="btn-class1">
+        <input #statusButtons [id]="product.value" type="submit" value="Enable/Disable" (click)="enableProduct(product.value)" hidden>
         <input #removeButtons [id]="product.value" type="submit" value="(-) Product" (click)="removeProduct(product.value)" hidden>
       </label>
     </a>
 
     <b>
+      <h2 #newProductLabel hidden>New Product</h2>
+      <input #nameTexbox class="form-control" type="text" placeholder="Enter product name" hidden>
       <input #addButton class="btn-class2" type="submit" value="(+) Product" (click)="addProduct()" hidden>
+      <h2>Actions</h2>
+      <input #saveButton class="btn-class2" type="submit" value="Save List" (click)="saveProducts()" hidden>
       <input #findButton class="btn-class2" type="submit" value="Find Path" (click)="findPath()" hidden>
-      <!-- <input #removeButton class="btn-class" type="submit" value="(-) Product" (click)="removeProduct()" hidden> -->
     </b>
   </div>
 </div>

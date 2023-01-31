@@ -12,13 +12,35 @@ export class ImagesService {
       private http: HttpClient
     ) { }
 
-    getImages(): Observable<any[]> {
-      return this.http.get<any[]>(this.APIUrl + '/Images/');
+    imagesRequest(action: string, jsonParamsData = JSON.parse('{}')): Observable<any[]> {
+      // Getting all Images
+      if (action == "GET") {
+        return this.http.get<any[]>(this.APIUrl + '/Images/');
+      }
+      // Posting new Image
+      else if (action == "POST") {
+        return this.http.post<any[]>(this.APIUrl + '/Images/', jsonParamsData);
+      }
+      // Deleting existing Image
+      else if (action == "DELETE") {
+        const options = {
+          body: {
+            name: jsonParamsData["name"],
+            image: jsonParamsData["image"],
+            image_name: jsonParamsData["image_name"],
+          },
+        };
+        return this.http.delete<any[]>(this.APIUrl + '/Images/', options);
+      }
+      // Unknown
+      else {
+        alert("Invalid request")
+        return jsonParamsData
+      }
     }
 
     updateData(request: string) {
       console.log(request)
       this.requestServerDataEvent.emit(request);
     }
-     
 }

@@ -14,7 +14,6 @@ export class FindPathService {
     ) { }
 
     getFindPathResult(jsonParamsData: JSON): Observable<any[]>{
-        
         return this.http.post<any[]>(this.APIUrl + '/findPath/', jsonParamsData);
     }
 }

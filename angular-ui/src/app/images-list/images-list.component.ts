@@ -37,7 +37,7 @@ export class ImagesListComponent implements OnInit {
   }
 
   getServerData() {
-    this.imagesSerivce.getImages().subscribe((data: any)=>{
+    this.imagesSerivce.imagesRequest("GET").subscribe((data: any)=>{
       this.listOfImages = [];
       for (let i = 0; i < data.length; i++) {
         this.listOfImages.push(new ImageLink(data[i]["name"], data[i]["metadata"], data[i]["url"], data[i]["products"]))
@@ -53,8 +53,11 @@ export class ImagesListComponent implements OnInit {
     })
   }
 
+  selectedFile: File
+
   onFileChange(event) {
     const file = event.target.files[0];
+    this.selectedFile = file
     // Do whatever you need with the file, such as uploading it to a server.
   }
 

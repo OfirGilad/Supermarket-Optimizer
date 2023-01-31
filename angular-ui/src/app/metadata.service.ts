@@ -14,7 +14,6 @@ export class MetadataService {
     ) { }
 
     saveMetadataToFirebase(jsonParamsData: JSON): Observable<any[]>{
-        
         return this.http.post<any[]>(this.APIUrl + '/saveMetadata/', jsonParamsData);
     }
 }

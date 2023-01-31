@@ -1,6 +1,4 @@
-import os
 import urllib
-from collections import defaultdict
 
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -86,6 +84,80 @@ def Images(request, id=0):
 
         return JsonResponse(images, safe=False)
 
+    # Uploading image to firebase
+    if request.method == 'POST':
+        params = request.body.decode()
+        params = json.loads(params)
+        name = params["name"]
+        image = params["image"]
+        image_name = params["image_name"]
+        metadata = '{}'
+        products = '{}'
+
+        # NEED TO VERIFY IF WORKS - START
+        originalImage = skimage.io.imread(image)
+        pil_img = Image.fromarray(originalImage)
+        pil_img.save("ImageUpload/" + image_name)
+        url = uploadToFirebase("ImageMetadata/" + image)
+        # NEED TO VERIFY IF WORKS - END
+
+        utc = str(datetime.utcnow())
+        utc = utc.replace(":", ".")
+
+        # Creating Metadata txt file
+        file1 = open("ImageMetadata/metadata-" + utc + ".txt", "a")
+        file1.write(metadata)
+        file1.close()
+
+        MetadataURL = uploadToFirebase("ImageMetadata/metadata-" + utc + ".txt")
+
+        # Creating Products txt file
+        file2 = open("ImageProducts/products-" + utc + ".txt", "a")
+        file2.write(products)
+        file2.close()
+
+        ProductsURL = uploadToFirebase("ImageProducts/products-" + utc + ".txt")
+
+        images = database.child('Images').get().val()
+
+        new_data = {
+          "metadata": MetadataURL,
+          "name": name,
+          "products": ProductsURL,
+          "url": url
+        }
+
+        i = len(images)
+        database.child('Images').child(str(i)).push(new_data)
+
+        return JsonResponse("Map Saved", safe=False)
+
+    # Deleting image from firebase
+    if request.method == 'DELETE':
+        params = request.body.decode()
+        params = json.loads(params)
+        url = params["url"]
+
+        images = database.child('Images').get().val()
+
+        i = 0
+        found_flag = False
+        images_length = len(images)
+        for image in images:
+            imageURL = image['url']
+            if imageURL == url:
+                found_flag = True
+
+            # If image found, overwriting next images on previous image, and deleting the last one
+            if found_flag:
+                if i != images_length - 1:
+                    database.child('Images').child(str(i)).set(database.child('Images').child(str(i + 1)))
+                else:
+                    database.child('Images').child(str(i)).remove()
+            i += 1
+
+        return JsonResponse("Map Deleted", safe=False)
+
 
 @csrf_exempt
 def SaveMetadata(request, id=0):
@@ -126,7 +198,7 @@ def SaveProducts(request, id=0):
         products = params["products"]
         utc = str(datetime.utcnow())
         utc = utc.replace(":", ".")
-        # Creating Metadata txt file
+        # Creating Products txt file
         file = open("ImageProducts/products-" + utc + ".txt", "a")
         file.write(products)
         file.close()
@@ -143,16 +215,6 @@ def SaveProducts(request, id=0):
             i += 1
 
         return JsonResponse(ProductsURL, safe=False)
-
-
-@csrf_exempt
-def SaveImage(request, id=0):
-    return JsonResponse("Map Saved", safe=False)
-
-
-@csrf_exempt
-def RemoveImage(request, id=0):
-    return JsonResponse("Map Removed", safe=False)
 
 
 @csrf_exempt

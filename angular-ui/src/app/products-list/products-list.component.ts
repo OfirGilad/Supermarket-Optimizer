@@ -75,7 +75,7 @@ export class ProductsListComponent implements OnInit {
         this.newProductLabel.nativeElement.style.display = "block";
         this.nameTexbox.nativeElement.style.display = "block";
         this.addButton.nativeElement.style.display = "block";
-        
+
         this.saveButton.nativeElement.style.display = "block";
         // console.log(this.removeButtons)
         
@@ -84,6 +84,10 @@ export class ProductsListComponent implements OnInit {
         this.removeButtons.forEach(removeBTN => {
           // console.log(removeBTN.nativeElement)
           removeBTN.nativeElement.style.display = "block";
+        });
+        this.statusButtons.forEach(statusBTN => {
+          // console.log(removeBTN.nativeElement)
+          statusBTN.nativeElement.style.display = "block";
         });
       }
     })

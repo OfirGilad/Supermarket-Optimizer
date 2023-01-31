@@ -118,6 +118,18 @@ export class ImageCanvasEditingComponent implements OnInit {
       var findPathJSON = JSON.parse(this.MetajsonTxt)
       findPathJSON['Products'] = productsJSON["products"]
 
+      var starting_point_not_found = true
+      for (let i = 0; i < findPathJSON["Points"].length; i++) {
+        if (findPathJSON["Points"][i]["color"] == "green") {
+          starting_point_not_found = false
+        }
+      }
+
+      if (starting_point_not_found) {
+        alert("No Starting Point was selected")
+          return
+      }
+
       // Reset Edges Colors
       if (findPathJSON['Connections'] != null) {
         for (let i = 0; i < findPathJSON['Connections'].length; i++) {

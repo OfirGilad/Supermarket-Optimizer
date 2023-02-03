@@ -1679,6 +1679,22 @@ export class ImageCanvasEditingComponent implements OnInit {
     return stringArray
   }
 
+  DeselectStartingPointMode() {
+    var json = JSON.parse(this.MetajsonTxt)
+    var points = json['Points']
+
+    if (points != null){
+      for (let i = 0; i < points.length; i++) {
+        if (points[i]["color"] == "green") {
+          json['Points'][i]["color"] = "black"
+        }
+      }
+    }
+
+    this.MetaDataText.nativeElement.value = JSON.stringify(json);
+    this.SendMetaData()
+  }
+
   // Buttons Implementation - END
 
 

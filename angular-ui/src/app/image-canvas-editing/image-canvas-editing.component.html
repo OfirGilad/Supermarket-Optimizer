@@ -46,6 +46,7 @@
         <li [hidden]="CheckPermission()" (click)="EditPositionsMode()">Edit Point Positions</li>
         <li [hidden]="CheckPermission()" (click)="PointProductsUpdateMode()">Edit Point Products</li>
         <li (click)="SelectStartingPointMode()">Set Starting Point</li> <!--No Permission Required-->
+        <li (click)="DeselectStartingPointMode()">Unset Starting Point</li> <!--No Permission Required-->
 
         <li [hidden]="CheckPermission()" (click)="DrawPoint()">Add Point</li>
         <li [hidden]="CheckPermission()" (click)="AddConnectionsMode()">Add Connection</li>

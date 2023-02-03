@@ -53,11 +53,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.globalSelectedProduct = JSON.parse('{}')
     this.globalSelectedProduct['products'] = []
     this.find_path_status = false
-    
-    // Clean Canvas
-    // this.ctx = this.canvas.nativeElement.getContext('2d');
-    // this.image.src = "";
-    // this.ctx.drawImage(this.image, 0, 0);
 
     this.fabric_canvas = new fabric.Canvas('canvas');
     this.fabric_canvas.clear();
@@ -233,8 +228,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.DrawPoint();
     this.CurrentClicked = "Metadata";
     this.CallMetaData();
-    // this.CurrentClicked = "PointProductsUpdate";
-    // this.PointProductsUpdateMode();
     this.CurrentClicked = "SelectStartingPoint";
     this.SelectStartingPointMode();
 
@@ -516,71 +509,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
   }
   // Right Click Menu - END
-
-
-  // Edit Mode - START
-  // annotation_index = 0
-  // annotation_type: string = ''
-  // annotation_data = []
-  // point_index = 0
-  // min_x = 0
-  // min_y = 0
-  // min_x_dist = 0
-  // min_y_dist = 0
-
-  // findClosestPoint(x1, y1) {
-  //   this.annotation_type = ''
-  //   this.annotation_data = []
-  //   var min_distance = this.canvas.nativeElement.width * this.canvas.nativeElement.width
-    
-  //   var json = JSON.parse(this.MetajsonTxt);
-  //   let points = json["Points"];
-    
-  //   let curr = [];   
-
-  //   // Check Points
-  //   if (points != null) {
-  //     for (let i = 0; i < points.length; i++) {
-  //       curr = points[i];
-  //       var x2 = curr['x']
-  //       var y2 = curr['y']
-  //       var distance = this.points_distance(x1, y1, x2, y2)
-        
-  //       if (distance < min_distance) {
-  //         min_distance = distance
-  //         this.annotation_index = i
-  //         this.annotation_type = 'Points'
-  //         this.annotation_data = curr
-  //       }
-  //     }
-
-  //     var selected_x = this.annotation_data['x']
-  //     var selected_y = this.annotation_data['y']
-  //     this.color_point(selected_x, selected_y, 'red')
-  //     this.edit_annotations_mode_stage1 = true
-  //   }
-  // }
-
-  
-  // setSelectedPoint(x, y) {
-  //   this.min_x_dist = x - this.min_x
-  //   this.min_y_dist = y - this.min_y
-
-  //   // update to metadata
-
-  //   if (this.annotation_type  == 'Points') {
-  //     var json = JSON.parse(this.MetajsonTxt);
-  //     json.Points[this.annotation_index]['x'] = x;
-  //     json.Points[this.annotation_index]['y'] = y;
-  //     this.MetajsonTxt = JSON.stringify(json);
-  //     this.MetaDataText.nativeElement.value = this.MetajsonTxt;
-      
-  //     this.SendMetaData()   
-  //   }
-  // }
-  // Edit Mode - END
-
-
 
 
   // Edit Mode - START
@@ -1428,13 +1356,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
   }
 
-  @ViewChild('FunctionTextToCV') functionTextToCV;
-
-  // @ViewChild('TextToCV') textToCV;
-  // CVjsonText: string = '{}'
-
-  //cv_call_image: boolean = false
-
   async FindPathCall(jsonParams: JSON){
     console.log("Sent Json: ", jsonParams)
 
@@ -1448,7 +1369,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.SendMetaData()
     })
 
-    // Set waiting to draw annotation after CV function results
+    // Set waiting to getting Path Result
     //await this.sleep(10000);
     //this.SendMetaData()
   }
@@ -1662,8 +1583,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     for (let i = 0; i < new_point_products.length; i++) {
       this.globalSelectedProduct['products'] = this.RemoveElementFromStringArray(this.globalSelectedProduct['products'], new_point_products[i])
     }
-
-    //console.log("HEY LISTEN", this.selectedProducts['products']);
 
     this.old_starting_point = this.new_starting_point
     this.SendMetaData()

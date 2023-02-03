@@ -920,9 +920,16 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Delete related Connections
       if (connections != null) {
         var updatedConnectionsList = connections
-        updatedConnectionsList.forEach((value, index)=>{
-          if(value["s"] == this.point5_index || value["t"] == this.point5_index) updatedConnectionsList.splice(index,1);
-        });
+        
+        var index = 0
+        while (index < updatedConnectionsList.length) {
+          if((updatedConnectionsList[index]["s"] == this.point5_index) || (updatedConnectionsList[index]["t"] == this.point5_index)) {
+            updatedConnectionsList.splice(index,1);
+          }
+          else {
+            index++;
+          }
+        }
         
         if (updatedConnectionsList.length == 0) {
           delete json["Connections"]
@@ -931,7 +938,19 @@ export class ImageCanvasEditingComponent implements OnInit {
           json["Connections"] = updatedConnectionsList
         }
       }
+      connections = json["Connections"]
 
+      if (connections != null) {
+        for (let i = 0; i < connections.length; i++) {
+          if (connections[i]["s"] > this.point5_index) {
+            json["Connections"][i]["s"]--;
+          }
+          if (connections[i]["t"] > this.point5_index) {
+            json["Connections"][i]["t"]--;
+          }
+        }
+      }
+      
       // Delete Point
       var updatedPointsList = points
       updatedPointsList.forEach((_, index)=>{

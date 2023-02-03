@@ -280,10 +280,9 @@ export class ImageCanvasEditingComponent implements OnInit {
             br: false, 
             tl: false, 
             tr: false,
-        });
+          });
         }
       }
-
     }
 
     else if (this.CurrentClicked == "AddConnection"){
@@ -312,7 +311,6 @@ export class ImageCanvasEditingComponent implements OnInit {
           this.add_connections_mode_stage1 = false
       }
     }
-
 
     else if (this.CurrentClicked == "SelectStartingPoint"){
       this.disableOtherOptions()
@@ -350,7 +348,6 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       var User_X = e.pageX - offset.left
       var User_Y = e.pageY - offset.top
-
 
       // Selecting First Point
       if (this.remove_connections_mode_stage1 == false) {
@@ -414,13 +411,13 @@ export class ImageCanvasEditingComponent implements OnInit {
       //this.color_point(this.point_x, this.point_y, 'black', 10)
 
       var json = JSON.parse(this.MetajsonTxt);
-      var line = json.Points;
-      if (line == undefined) {
-        json.Points = []
+      var points = json["Points"];
+      if (points == null) {
+        json["Points"] = []
       }
 
       var curr = {"x": this.point_x, "y": this.point_y, "color": "black", "products": []}
-      json.Points.push(curr)
+      json["Points"].push(curr)
       this.MetajsonTxt = JSON.stringify(json);
       this.MetaDataText.nativeElement.value = this.MetajsonTxt;
 
@@ -472,6 +469,25 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       console.log(this.tooltips_list)
     }
+
+    else if (this.CurrentClicked == "RemovePoint") {
+      this.disableOtherOptions()
+      this.CurrentClicked = "RemovePoint";
+
+      // Used to reset colored dots after selection
+      //this.SendMetaData()
+      this.CurrentClicked = "RemovePoint";
+
+      var User_X = e.pageX - offset.left
+      var User_Y = e.pageY - offset.top
+
+      // Selecting Point to delete
+      if (this.MetajsonTxt != '{}') {
+        this.findAndRemovePoint(User_X, User_Y)
+        this.CurrentClicked = "RemovePoint";
+      }
+    }
+
     else {
       this.textInput.nativeElement.style.display = "none";
       this.disappearContext()
@@ -498,31 +514,8 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.menu.nativeElement.style.top = e.pageY + "px";
       this.menu.nativeElement.style.left = e.pageX + "px";
     }
-
-    // else if (this.annotation_type == "Texts") { 
-    //   this.ctx = this.canvas.nativeElement.getContext('2d');
-    //   var rect = this.canvas.nativeElement.getBoundingClientRect();
-
-    //   // Edit current Text Box
-    //   this.textInput.nativeElement.style.display = "block";
-    //   this.textInput.nativeElement.style.top = this.min_y + rect.top - 15 + "px";
-    //   this.textInput.nativeElement.style.left = this.min_x + rect.left + "px";
-    // }
-    // else if (this.annotation_type != "Texts") {
-    //   this.ctx = this.canvas.nativeElement.getContext('2d');
-    //   var rect = this.canvas.nativeElement.getBoundingClientRect();
-
-    //   for (let i = 0; i < this.annotation_data.length; i++) {
-    //     if (i != this.point_index) {
-    //       this.color_point(this.annotation_data[i][0], this.annotation_data[i][1], 'yellow')
-    //     }
-    //   }
-    //   this.move_all_points = true
-    // }
   }
   // Right Click Menu - END
-
-
 
 
   // Edit Mode - START
@@ -892,6 +885,72 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
 
 
+  point5_index = 0
+  point5_data = []
+  min_x5 = 0
+  min_y5 = 0
+  min_x_dist5 = 0
+  min_y_dist5 = 0
+
+  findAndRemovePoint(x1, y1) {
+    this.point5_data = []
+    var min_distance = this.canvas.nativeElement.width * this.canvas.nativeElement.width
+    
+    var json = JSON.parse(this.MetajsonTxt);
+    let points = json["Points"];
+    let connections = json["Connections"];
+    
+    let curr = [];   
+
+    // Check Points
+    if (points != null) {
+      for (let i = 0; i < points.length; i++) {
+        curr = points[i];
+        var x2 = curr['x']
+        var y2 = curr['y']
+        var distance = this.points_distance(x1, y1, x2, y2)
+        
+        if (distance < min_distance) {
+          min_distance = distance
+          this.point5_index = i
+          this.point5_data = curr
+        }
+      }
+      
+      // Delete related Connections
+      if (connections != null) {
+        var updatedConnectionsList = connections
+        updatedConnectionsList.forEach((value, index)=>{
+          if(value["s"] == this.point5_index || value["t"] == this.point5_index) updatedConnectionsList.splice(index,1);
+        });
+        
+        if (updatedConnectionsList.length == 0) {
+          delete json["Connections"]
+        }
+        else {
+          json["Connections"] = updatedConnectionsList
+        }
+      }
+
+      // Delete Point
+      var updatedPointsList = points
+      updatedPointsList.forEach((_, index)=>{
+        if(index == this.point5_index) updatedPointsList.splice(index,1);
+      });
+      
+      if (updatedPointsList.length == 0) {
+        delete json["Points"]
+      }
+      else {
+        json["Points"] = updatedPointsList
+      }
+
+      this.MetaDataText.nativeElement.value = JSON.stringify(json);
+      this.SendMetaData()
+    }
+  }
+
+
   // Buttons Implementation - START
   EditPositionsMode() {
     this.edit_in_progress = true
@@ -1057,6 +1116,31 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.fabric_canvas.remove(this.temp_points_list[i])
     }
     this.temp_points_list = []
+  }
+
+  RemovePointsMode() {
+    //this.remove_connection_in_progress = true
+    this.disappearContext();
+    if (this.CurrentClicked != "RemovePoint") {
+      // Disable Other Modes
+      this.DisableEditPositionsMode();
+      this.DisablePointProductsUpdateMode();
+
+      // Hide Solution
+      this.hide_solution_path()
+      this.find_path_status = false
+      
+      // Enable Mode
+      this.CurrentClicked = "RemovePoint";
+      this.disableOtherOptions()
+      this.CurrentClicked = "RemovePoint";
+    }
+    else {
+      //this.remove_connection_in_progress = false
+      //this.DisableRemovePointsMode()
+      this.CurrentClicked = "";
+      //this.ClearAnnotations(false)
+    }
   }
 
 
@@ -1550,23 +1634,23 @@ export class ImageCanvasEditingComponent implements OnInit {
     var old_point_products = json['Points'][this.old_starting_point]['products']
     var new_point_products = json['Points'][this.new_starting_point]['products']
 
-    // console.log(old_point_products);
-    // console.log(new_point_products);
+    //console.log(old_point_products);
+    //console.log(new_point_products);
 
     for (let i = 0; i < old_point_products.length; i++) {
-      this.selectedProducts['products'] = this.RemoveElementFromStringArray(this.selectedProducts['products'], old_point_products[i])
+      this.globalSelectedProduct['products'] = this.RemoveElementFromStringArray(this.globalSelectedProduct['products'], old_point_products[i])
     }
     for (let i = 0; i < new_point_products.length; i++) {
-      this.selectedProducts['products'] = this.RemoveElementFromStringArray(this.selectedProducts['products'], new_point_products[i])
+      this.globalSelectedProduct['products'] = this.RemoveElementFromStringArray(this.globalSelectedProduct['products'], new_point_products[i])
     }
 
-    // console.log(this.selectedProducts['products']);
+    //console.log("HEY LISTEN", this.selectedProducts['products']);
 
     this.old_starting_point = this.new_starting_point
     this.SendMetaData()
 
-    this.imageCanvasEditingService.setNewSelectedProducts(this.selectedProducts)
-    this.productsListService.requestPath(this.selectedProducts)
+    this.imageCanvasEditingService.setNewSelectedProducts(this.globalSelectedProduct)
+    this.productsListService.requestPath(this.globalSelectedProduct)
   }
 
   RemoveElementFromStringArray(stringArray, element: string) {

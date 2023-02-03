@@ -16,7 +16,7 @@
               [checked]="product.checked"
               [disabled]="product.disabled"
               (change)="updateCheckedProduct(product, $event)"/>
-        {{product.name}}
+          {{getProductName(product.value)}}
       </label>
       <label class="btn-class1">
         <input #statusButtons [id]="product.value" type="submit" value="Enable/Disable" (click)="enableProduct(product.value)" hidden>

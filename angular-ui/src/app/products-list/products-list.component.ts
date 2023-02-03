@@ -248,6 +248,17 @@ export class ProductsListComponent implements OnInit {
     })
   }
 
+  getProductName(product_value) {
+    var product_name = this.listOfProducts[product_value]["name"]
+
+    if (this.listOfProducts[product_value]["disabled"] == true) {
+      return product_name + " (Out of Stock)"
+    }
+    else {
+      return product_name
+    }
+  }
+
   CheckPermission() {
     return !this.ADMIN_PERMISSIONS
   }

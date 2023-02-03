@@ -248,6 +248,9 @@ export class ImageCanvasEditingComponent implements OnInit {
   // AddConnection - Modes
   add_connections_mode_stage1: boolean = false
 
+  // RemoveConnection - Modes
+  remove_connections_mode_stage1: boolean = false
+
   // PointProductsUpdate - Modes
   points_products_update_mode_stage1: boolean = false
 
@@ -299,13 +302,13 @@ export class ImageCanvasEditingComponent implements OnInit {
       if (this.add_connections_mode_stage1 == false) {
         // console.log(this.MetajsonTxt)
         if (this.MetajsonTxt != '{}') {
-          this.findFirstPoint(User_X, User_Y)
+          this.findFirstPoint(User_X, User_Y, "ADD")
           this.CurrentClicked = "AddConnection";
         }
       }
       else {
           // Selecting Second Point
-          this.findSecondPoint(User_X, User_Y)
+          this.findSecondPoint(User_X, User_Y, "ADD")
           this.add_connections_mode_stage1 = false
       }
     }
@@ -335,6 +338,33 @@ export class ImageCanvasEditingComponent implements OnInit {
         }
         this.CurrentClicked = "";
       } 
+    }
+
+    else if (this.CurrentClicked == "RemoveConnection"){
+      this.disableOtherOptions()
+      this.CurrentClicked = "RemoveConnection";
+
+      // Used to reset colored dots after selection
+      //this.SendMetaData()
+      this.CurrentClicked = "RemoveConnection";
+
+      var User_X = e.pageX - offset.left
+      var User_Y = e.pageY - offset.top
+
+
+      // Selecting First Point
+      if (this.remove_connections_mode_stage1 == false) {
+        // console.log(this.MetajsonTxt)
+        if (this.MetajsonTxt != '{}') {
+          this.findFirstPoint(User_X, User_Y, "REMOVE")
+          this.CurrentClicked = "RemoveConnection";
+        }
+      }
+      else {
+          // Selecting Second Point
+          this.findSecondPoint(User_X, User_Y, "REMOVE")
+          this.remove_connections_mode_stage1 = false
+      }
     }
 
     else if (this.CurrentClicked == "Metadata"){
@@ -568,7 +598,7 @@ export class ImageCanvasEditingComponent implements OnInit {
   min_x_dist1 = 0
   min_y_dist1 = 0
 
-  findFirstPoint(x1, y1) {
+  findFirstPoint(x1, y1, mode) {
     this.point1_data = []
     var min_distance = this.canvas.nativeElement.width * this.canvas.nativeElement.width
     
@@ -594,8 +624,18 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       var selected_x = this.point1_data['x']
       var selected_y = this.point1_data['y']
-      this.color_point(selected_x, selected_y, 'red')
-      this.add_connections_mode_stage1 = true
+
+      if (mode == "ADD") {
+        this.color_point(selected_x, selected_y, 'yellow')
+        this.add_connections_mode_stage1 = true
+      }
+      else if (mode == "REMOVE"){
+        this.color_point(selected_x, selected_y, 'red')
+        this.remove_connections_mode_stage1 = true
+      }
+      else {
+        alert("Invalid Mode")
+      }
     }
   }
 
@@ -606,7 +646,7 @@ export class ImageCanvasEditingComponent implements OnInit {
   min_x_dist2 = 0
   min_y_dist2 = 0
 
-  findSecondPoint(x1, y1) {
+  findSecondPoint(x1, y1, mode) {
     for (let i = 0; i < this.temp_points_list.length; i++) {
       this.fabric_canvas.remove(this.temp_points_list[i])
     }
@@ -636,64 +676,113 @@ export class ImageCanvasEditingComponent implements OnInit {
       }
 
       if (this.point1_index != this.point2_index) {
-        
         var new_connection = [this.point1_index, this.point2_index];
         var is_new_connection = true;
 
-        // Add connection to metadata
-        var line = json.Connections;
-        if (line == undefined) {
-          json.Connections = [];
 
-        }
-        else {
-          var new_connection = [this.point1_index, this.point2_index]
+        if (mode == "ADD") {
+          // Add "Connections" to metadata
+          if (connections == null) {
+            json["Connections"] = [];
+          }
+          else {
+            var new_connection = [this.point1_index, this.point2_index]
 
-          for (let i = 0; i < connections.length; i++) {
-            curr = connections[i];
-            var existing_connection1 = [curr['s'], curr['t']]
-            var existing_connection2 = [curr['t'], curr['s']]
-            
-            if ((JSON.stringify(existing_connection1)==JSON.stringify(new_connection)) || 
-                (JSON.stringify(existing_connection2)==JSON.stringify(new_connection))) {
-              is_new_connection = false
+            for (let i = 0; i < connections.length; i++) {
+              curr = connections[i];
+              var existing_connection1 = [curr['s'], curr['t']]
+              var existing_connection2 = [curr['t'], curr['s']]
+              
+              if ((JSON.stringify(existing_connection1)==JSON.stringify(new_connection)) || 
+                  (JSON.stringify(existing_connection2)==JSON.stringify(new_connection))) {
+                is_new_connection = false
+              }
             }
           }
+
+          // Add only if connection doesn't exist
+          if (is_new_connection == true) {
+            var to_add = {'s': this.point1_index, 't': this.point2_index, 'color': 'black'}
+            json.Connections.push(to_add)
+            
+            var connection_id = [this.point1_index, this.point2_index];
+            this.connections_counter += 1;
+
+            var connection = new fabric.Line(
+              [
+                points[to_add['s']]['x'], points[to_add['s']]['y'], points[to_add['t']]['x'], points[to_add['t']]['y']
+              ],
+              {
+                id: connection_id,
+                stroke: to_add['color'],
+                strokeWidth: 2,
+                hasControls: false,
+                hasBorders: false,
+                selectable: false,
+                lockMovementX: true,
+                lockMovementY: true,
+                hoverCursor: "default",
+                originX: "center",
+                originY: "center"
+              }
+            );
+            console.log(connection)
+            this.fabric_canvas.add(connection);
+            this.connections_list.push(connection);
+
+            this.MetajsonTxt = JSON.stringify(json);
+            this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+          }
         }
+        else if (mode == "REMOVE") {
+          var connection_to_remove = -1
 
-        // Add only if connection doesn't exist
-        if (is_new_connection == true) {
-          var to_add = {'s': this.point1_index, 't': this.point2_index, 'color': 'black'}
-          json.Connections.push(to_add)
-          
-          var connection_id = [this.point1_index, this.point2_index];
-          this.connections_counter += 1;
+          // Check if the connection exists
+          if (connections != null) {
+            var new_connection = [this.point1_index, this.point2_index]
 
-          var connection = new fabric.Line(
-            [
-              points[to_add['s']]['x'], points[to_add['s']]['y'], points[to_add['t']]['x'], points[to_add['t']]['y']
-            ],
-            {
-              id: connection_id,
-              stroke: to_add['color'],
-              strokeWidth: 2,
-              hasControls: false,
-              hasBorders: false,
-              selectable: false,
-              lockMovementX: true,
-              lockMovementY: true,
-              hoverCursor: "default",
-              originX: "center",
-              originY: "center"
+            for (let i = 0; i < connections.length; i++) {
+              curr = connections[i];
+              var existing_connection1 = [curr['s'], curr['t']]
+              var existing_connection2 = [curr['t'], curr['s']]
+              
+              if ((JSON.stringify(existing_connection1)==JSON.stringify(new_connection)) || 
+                  (JSON.stringify(existing_connection2)==JSON.stringify(new_connection))) {
+                connection_to_remove = i
+              }
             }
-          );
-          console.log(connection)
-          this.fabric_canvas.add(connection);
-          this.connections_list.push(connection);
-        }
+          }
+          
+          // Remove the connection
+          if (connection_to_remove != - 1) {
+            var updatedList = connections
+            updatedList.forEach((_, index)=>{
+              if(index==connection_to_remove) updatedList.splice(index,1);
+            });
+            
+            if (updatedList.length == 0) {
+              delete json["Connections"]
+            }
+            else {
+              json["Connections"] = updatedList
+            }
 
-        this.MetajsonTxt = JSON.stringify(json);
-        this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+            var connection = this.connections_list[connection_to_remove]
+            console.log(connection)
+            this.fabric_canvas.remove(connection);
+
+            var updatedConnections = this.connections_list
+            updatedConnections.forEach((_, index)=>{
+              if(index==connection_to_remove) updatedConnections.splice(index,1);
+            });
+
+            this.MetajsonTxt = JSON.stringify(json);
+            this.MetaDataText.nativeElement.value = this.MetajsonTxt;
+          }
+        }
+        else {
+          alert("Invalid Mode")
+        }
 
         //this.SendMetaData() 
       }
@@ -866,6 +955,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable Other Modes
       this.DisableEditPositionsMode();
       this.DisablePointProductsUpdateMode();
+      this.DisableRemoveConnectionsMode();
 
       // Hide Solution
       this.hide_solution_path()
@@ -910,6 +1000,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.DisableEditPositionsMode();
       this.DisableAddConnectionsMode();
       this.DisablePointProductsUpdateMode();
+      this.DisableRemoveConnectionsMode();
 
       // Enable Mode
       this.CurrentClicked = "SelectStartingPoint";
@@ -928,6 +1019,48 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
 
   ////
+
+  RemoveConnectionsMode() {
+    this.remove_connection_in_progress = true
+    this.disappearContext();
+    if (this.CurrentClicked != "RemoveConnection") {
+      // Disable Other Modes
+      this.DisableEditPositionsMode();
+      this.DisablePointProductsUpdateMode();
+
+      // Hide Solution
+      this.hide_solution_path()
+      this.find_path_status = false
+      
+      // Enable Mode
+      this.CurrentClicked = "RemoveConnection";
+      this.disableOtherOptions()
+      this.CurrentClicked = "RemoveConnection";
+    }
+    else {
+      this.remove_connection_in_progress = false
+      this.DisableAddConnectionsMode()
+      this.CurrentClicked = "";
+      //this.ClearAnnotations(false)
+    }
+  }
+
+  remove_connection_in_progress = false
+
+  DisableRemoveConnectionsMode() {
+    if (this.remove_connections_mode_stage1 == true && this.remove_connection_in_progress == false) {
+      this.remove_connections_mode_stage1 = false
+    }
+
+    // Empty red points
+    for (let i = 0; i < this.temp_points_list.length; i++) {
+      this.fabric_canvas.remove(this.temp_points_list[i])
+    }
+    this.temp_points_list = []
+  }
+
+
+  ////
   
 
   PointProductsUpdateMode() {
@@ -937,6 +1070,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable Other Modes
       this.DisableEditPositionsMode();
       this.DisableAddConnectionsMode();
+      this.DisableRemoveConnectionsMode();
 
       // Hide Solution
       this.hide_solution_path()
@@ -980,10 +1114,12 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable Edit Mode
       this.edit_in_progress = false
       this.DisableEditPositionsMode()
-      this.add_in_progress = false
-      this.DisableAddConnectionsMode()
       this.product_selection_in_progress = false
       this.DisablePointProductsUpdateMode()
+      this.add_in_progress = false
+      this.DisableAddConnectionsMode()
+      this.remove_connection_in_progress = false
+      this.DisableRemoveConnectionsMode()
 
       this.CurrentClicked = "Metadata";
       this.disableOtherOptions()
@@ -1255,10 +1391,12 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable Edit Mode
       this.edit_in_progress = false
       this.DisableEditPositionsMode()
-      this.add_in_progress = false
-      this.DisableAddConnectionsMode()
       this.product_selection_in_progress = false
       this.DisablePointProductsUpdateMode()
+      this.add_in_progress = false
+      this.DisableAddConnectionsMode()
+      this.remove_connection_in_progress = false
+      this.DisableRemoveConnectionsMode()
 
       this.CurrentClicked = "Point";
       this.disableOtherOptions()
@@ -1308,12 +1446,16 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.edit_in_progress = false
       this.edit_positions_mode_stage1 = false
 
+      this.product_selection_in_progress = false
+      this.points_products_update_mode_stage1 = false
+
       this.add_in_progress = false
       this.add_connections_mode_stage1 = false
       //this.add_connections_mode_stage2 = false
 
-      this.product_selection_in_progress = false
-      this.points_products_update_mode_stage1 = false
+      this.remove_connection_in_progress = false
+      this.remove_connections_mode_stage1 = false
+      
       this.productSelectionInput.nativeElement.style.display = "none";
     //}
 

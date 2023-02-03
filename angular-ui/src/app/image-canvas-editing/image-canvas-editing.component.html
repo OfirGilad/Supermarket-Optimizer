@@ -47,11 +47,11 @@
         <li [hidden]="CheckPermission()" (click)="PointProductsUpdateMode()">Edit Point Products</li>
         <li (click)="SelectStartingPointMode()">Set Starting Point</li> <!--No Permission Required-->
 
-        <!-- <li [hidden]="CheckPermission()" (click)="RemovePointsMode()">Remove Point</li> -->
-        <!-- <li [hidden]="CheckPermission()" (click)="RemoveConnectionsMode()">Remove Connection</li> -->
-
         <li [hidden]="CheckPermission()" (click)="DrawPoint()">Add Point</li>
         <li [hidden]="CheckPermission()" (click)="AddConnectionsMode()">Add Connection</li>
+
+        <!-- <li [hidden]="CheckPermission()" (click)="RemovePointsMode()">Remove Point</li> -->
+        <li [hidden]="CheckPermission()" (click)="RemoveConnectionsMode()">Remove Connection</li>
         
         
         <li [hidden]="CheckPermission()" (click)="CallMetaData()">Edit Metadata</li>

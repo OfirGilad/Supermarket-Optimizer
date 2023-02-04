@@ -26,7 +26,7 @@ export class ImagesListComponent implements OnInit {
   @ViewChild('uploadButton') uploadButton;
 
   ngOnInit(): void {
-    if (this.router.url == '/admin') {
+    if (this.router.url == '/admin'  || this.router.url == '/debug') {
       this.ADMIN_PERMISSIONS = true
     }
     

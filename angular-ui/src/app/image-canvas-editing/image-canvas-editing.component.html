@@ -45,7 +45,7 @@
         <li #Option6 [hidden]="CheckPermission()" (click)="RemovePointsMode()">Remove Point</li>
         <li #Option7 [hidden]="CheckPermission()" (click)="RemoveConnectionsMode()">Remove Connection</li>
         
-        <li #Option8 [hidden]="CheckPermission()" (click)="ShowMetaData()">Edit Metadata</li>
+        <li #Option8 [hidden]="CheckDebugPermission()" (click)="ShowMetaData()">Edit Metadata</li>
         <li [hidden]="CheckPermission()" (click)="SaveMetadata()">Save Metadata</li>
         <li [hidden]="CheckPermission()" (click)="ClearAnnotations()">Clear All</li>
       </ul>

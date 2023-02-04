@@ -23,7 +23,7 @@ export class ImageLinkComponent implements OnInit {
   ADMIN_PERMISSIONS = false
 
   ngOnInit(): void {
-    if (this.router.url == '/admin') {
+    if (this.router.url == '/admin' || this.router.url == '/debug') {
       this.ADMIN_PERMISSIONS = true
     }
   }

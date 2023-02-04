@@ -28,6 +28,7 @@ export class ImageCanvasEditingComponent implements OnInit {
   ) { }
 
   ADMIN_PERMISSIONS = false
+  DEBUG_PERMISSIONS = false
 
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<HTMLCanvasElement>;  
@@ -47,9 +48,13 @@ export class ImageCanvasEditingComponent implements OnInit {
   find_path_status = false
 
   ngOnInit(): void {
-    if (this.router.url == '/admin') {
+    if (this.router.url == '/admin' || this.router.url == '/debug') {
       this.ADMIN_PERMISSIONS = true
     }
+    if (this.router.url == '/debug') {
+      this.DEBUG_PERMISSIONS = true
+    }
+
     this.globalSelectedProduct = JSON.parse('{}')
     this.globalSelectedProduct['products'] = []
     this.find_path_status = false
@@ -1609,6 +1614,10 @@ export class ImageCanvasEditingComponent implements OnInit {
 
   CheckPermission() {
     return !this.ADMIN_PERMISSIONS
+  }
+
+  CheckDebugPermission() {
+    return !this.DEBUG_PERMISSIONS
   }
 
   disappearContext(){

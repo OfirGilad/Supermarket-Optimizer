@@ -45,7 +45,7 @@ export class ProductsListComponent implements OnInit {
   currentImagePath = ""
 
   async ngOnInit(): Promise<void> {
-    if (this.router.url == '/admin') {
+    if (this.router.url == '/admin' || this.router.url == '/debug') {
       this.ADMIN_PERMISSIONS = true
     }
 

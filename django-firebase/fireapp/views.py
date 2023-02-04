@@ -1,5 +1,3 @@
-import urllib
-
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import JsonResponse
@@ -7,10 +5,9 @@ from django.http.response import JsonResponse
 import pyrebase
 import json
 from datetime import datetime
-
+import urllib
 from collections import defaultdict
 import heapq
-
 import skimage.io
 from PIL import Image
 

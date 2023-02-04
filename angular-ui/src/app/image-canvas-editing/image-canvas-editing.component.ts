@@ -198,32 +198,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.fabric_canvas.on('object:moving', this.updateOnPointsMoving);
   }
 
-  @ViewChild('productSelectionInput') productSelectionInput;
-
-  @ViewChild('MetaData') metaData;
-
-
-  // START FROM HERE
-
-  CurrentClicked: string = "";
-  
-  // Points list
-  points_counter: number = 0;
-  points_list = []
-  temp_points_list = []
-
-  // Connections List
-  connections_counter: number = 0;
-  connections_list = []
-
-  // Tooltips and Arrows list
-  tooltips_list = []
-  arrows_list = []
-
-  // For Point
-  point_x: number = 0;
-  point_y: number = 0;
-
 
   disableOtherOptions(currently_selected) {
     var all_options = {
@@ -354,6 +328,29 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
   }
 
+  @ViewChild('productSelectionInput') productSelectionInput;
+
+  @ViewChild('MetaData') metaData;
+
+  CurrentClicked: string = "";
+  
+  // Points list
+  points_counter: number = 0;
+  points_list = []
+  temp_points_list = []
+
+  // Connections List
+  connections_counter: number = 0;
+  connections_list = []
+
+  // Tooltips and Arrows list
+  tooltips_list = []
+  arrows_list = []
+
+  // For Point
+  point_x: number = 0;
+  point_y: number = 0;
+
 
   // EditPosition - Modes
   edit_positions_mode_stage1: boolean = false
@@ -395,73 +392,6 @@ export class ImageCanvasEditingComponent implements OnInit {
       }
     }
 
-    else if (this.CurrentClicked == "AddConnection"){
-      var User_X = e.pageX - offset.left
-      var User_Y = e.pageY - offset.top
-
-      // Selecting First Point
-      if (this.add_connections_mode_stage1 == false) {
-        // console.log(this.MetajsonTxt)
-        if (this.MetajsonTxt != '{}') {
-          this.findFirstPoint(User_X, User_Y, "ADD")
-          //this.CurrentClicked = "AddConnection";
-        }
-      }
-      else {
-          // Selecting Second Point
-          this.findSecondPoint(User_X, User_Y, "ADD")
-          this.add_connections_mode_stage1 = false
-      }
-    }
-
-    else if (this.CurrentClicked == "SelectStartingPoint"){
-      var User_X = e.pageX - offset.left
-      var User_Y = e.pageY - offset.top
-
-      // console.log(this.MetajsonTxt)
-      if (this.MetajsonTxt != '{}') {
-        this.findStartingPoint(User_X, User_Y)
-
-        // If Solution is active - Update path and selected products list
-        if (this.find_path_status == true) {
-          this.handleActiveSolution()
-        }
-        else {
-          this.SendMetaData() 
-        }
-        // this.CurrentClicked = "";
-      } 
-    }
-
-    else if (this.CurrentClicked == "RemoveConnection"){
-      var User_X = e.pageX - offset.left
-      var User_Y = e.pageY - offset.top
-
-      // Selecting First Point
-      if (this.remove_connections_mode_stage1 == false) {
-        // console.log(this.MetajsonTxt)
-        if (this.MetajsonTxt != '{}') {
-          this.findFirstPoint(User_X, User_Y, "REMOVE")
-        }
-      }
-      else {
-          // Selecting Second Point
-          this.findSecondPoint(User_X, User_Y, "REMOVE")
-          this.remove_connections_mode_stage1 = false
-      }
-    }
-
-    else if (this.CurrentClicked == "Metadata"){
-      if (this.metaData.nativeElement.style.display != "block") {
-        this.metaData.nativeElement.style.display = "block";
-      }
-      else {
-        this.metaData.nativeElement.style.display = "none";
-      }
-      this.metaData.nativeElement.style.top = e.pageY + "px";
-      this.metaData.nativeElement.style.left = e.pageX + "px";
-    }
-
     else if (this.CurrentClicked == "PointProductsUpdate"){
       var User_X = e.pageX - offset.left
       var User_Y = e.pageY - offset.top
@@ -486,6 +416,24 @@ export class ImageCanvasEditingComponent implements OnInit {
           this.productSelectionInput.nativeElement.style.display = "none";
           this.points_products_update_mode_stage1 = false
       }
+    }
+
+    else if (this.CurrentClicked == "SelectStartingPoint"){
+      var User_X = e.pageX - offset.left
+      var User_Y = e.pageY - offset.top
+
+      // console.log(this.MetajsonTxt)
+      if (this.MetajsonTxt != '{}') {
+        this.findStartingPoint(User_X, User_Y)
+
+        // If Solution is active - Update path and selected products list
+        if (this.find_path_status == true) {
+          this.handleActiveSolution()
+        }
+        else {
+          this.SendMetaData() 
+        }
+      } 
     }
 
     else if (this.CurrentClicked == "AddPoint"){
@@ -552,6 +500,24 @@ export class ImageCanvasEditingComponent implements OnInit {
       console.log(this.tooltips_list)
     }
 
+    else if (this.CurrentClicked == "AddConnection"){
+      var User_X = e.pageX - offset.left
+      var User_Y = e.pageY - offset.top
+
+      // Selecting First Point
+      if (this.add_connections_mode_stage1 == false) {
+        // console.log(this.MetajsonTxt)
+        if (this.MetajsonTxt != '{}') {
+          this.findFirstPoint(User_X, User_Y, "ADD")
+        }
+      }
+      else {
+          // Selecting Second Point
+          this.findSecondPoint(User_X, User_Y, "ADD")
+          this.add_connections_mode_stage1 = false
+      }
+    }
+    
     else if (this.CurrentClicked == "RemovePoint") {
       var User_X = e.pageX - offset.left
       var User_Y = e.pageY - offset.top
@@ -560,6 +526,35 @@ export class ImageCanvasEditingComponent implements OnInit {
       if (this.MetajsonTxt != '{}') {
         this.findAndRemovePoint(User_X, User_Y)
       }
+    }
+
+    else if (this.CurrentClicked == "RemoveConnection"){
+      var User_X = e.pageX - offset.left
+      var User_Y = e.pageY - offset.top
+
+      // Selecting First Point
+      if (this.remove_connections_mode_stage1 == false) {
+        // console.log(this.MetajsonTxt)
+        if (this.MetajsonTxt != '{}') {
+          this.findFirstPoint(User_X, User_Y, "REMOVE")
+        }
+      }
+      else {
+          // Selecting Second Point
+          this.findSecondPoint(User_X, User_Y, "REMOVE")
+          this.remove_connections_mode_stage1 = false
+      }
+    }
+
+    else if (this.CurrentClicked == "Metadata"){
+      if (this.metaData.nativeElement.style.display != "block") {
+        this.metaData.nativeElement.style.display = "block";
+      }
+      else {
+        this.metaData.nativeElement.style.display = "none";
+      }
+      this.metaData.nativeElement.style.top = e.pageY + "px";
+      this.metaData.nativeElement.style.left = e.pageX + "px";
     }
 
     else {
@@ -584,7 +579,7 @@ export class ImageCanvasEditingComponent implements OnInit {
   // Right Click Menu - END
 
 
-  // Edit Mode - START
+  // Edit Mode Functions - START
   point1_data = []
   point1_index = 0
   min_x1 = 0
@@ -778,8 +773,6 @@ export class ImageCanvasEditingComponent implements OnInit {
         else {
           alert("Invalid Mode")
         }
-
-        //this.SendMetaData() 
       }
     }
   }
@@ -969,6 +962,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.SendMetaData()
     }
   }
+  // Edit Mode Functions - END
 
 
   // Buttons Implementation - START
@@ -1015,108 +1009,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.CurrentClicked = "";
   }
 
-  AddConnectionsMode() {
-    this.disappearContext();
-    if (this.CurrentClicked != "AddConnection") {
-      // Disable other options
-      this.disableOtherOptions("AddConnection");
-
-      // Hide Solution
-      this.hide_solution_path()
-      this.find_path_status = false
-
-      this.OptionSelected(5, true)
-    }
-    else {
-      this.DisableAddConnectionsMode()
-    }
-  }
-
-
-  DisableAddConnectionsMode() {
-    this.OptionSelected(5, false)
-
-    this.add_connections_mode_stage1 = false
-
-    // Empty red points
-    for (let i = 0; i < this.temp_points_list.length; i++) {
-      this.fabric_canvas.remove(this.temp_points_list[i])
-    }
-    this.temp_points_list = []
-
-    this.CurrentClicked = "";
-  }
-
-  SelectStartingPointMode() {
-    this.disappearContext();
-    if (this.CurrentClicked != "SelectStartingPoint") {
-      // Disable other options
-      this.disableOtherOptions("SelectStartingPoint");
-
-      this.OptionSelected(3, true)
-    }
-    else {
-      this.DisableSelectStartingPointMode()
-    }
-  }
-
-  DisableSelectStartingPointMode() {
-    this.OptionSelected(3, false)
-    this.CurrentClicked = "";
-  }
-
-  RemoveConnectionsMode() {
-    this.disappearContext();
-    if (this.CurrentClicked != "RemoveConnection") {
-      // Disable other options
-      this.disableOtherOptions("RemoveConnection");
-
-      // Hide Solution
-      this.hide_solution_path()
-      this.find_path_status = false
-
-      this.OptionSelected(7, true)
-    }
-    else {
-      this.DisableAddConnectionsMode()
-    }
-  }
-
-  DisableRemoveConnectionsMode() {
-    this.OptionSelected(7, false)
-
-    this.remove_connections_mode_stage1 = false
-
-    // Empty red points
-    for (let i = 0; i < this.temp_points_list.length; i++) {
-      this.fabric_canvas.remove(this.temp_points_list[i])
-    }
-    this.temp_points_list = []
-
-    this.CurrentClicked = "";
-  }
-
-  RemovePointsMode() {
-    this.disappearContext();
-    if (this.CurrentClicked != "RemovePoint") {
-      // Disable other options
-      this.disableOtherOptions("RemovePoint");
-
-      // Hide Solution
-      this.hide_solution_path()
-      this.find_path_status = false
-
-      this.OptionSelected(6, true)
-    }
-    else {
-      this.DisableRemovePointsMode()
-    }
-  }
-
-  DisableRemovePointsMode() {
-    this.OptionSelected(6, false)
-    this.CurrentClicked = "";
-  }
 
   PointProductsUpdateMode() {
     this.disappearContext();
@@ -1152,6 +1044,159 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.CurrentClicked = "";
   }
 
+
+  SelectStartingPointMode() {
+    this.disappearContext();
+    if (this.CurrentClicked != "SelectStartingPoint") {
+      // Disable other options
+      this.disableOtherOptions("SelectStartingPoint");
+
+      this.OptionSelected(3, true)
+    }
+    else {
+      this.DisableSelectStartingPointMode()
+    }
+  }
+
+  DisableSelectStartingPointMode() {
+    this.OptionSelected(3, false)
+    this.CurrentClicked = "";
+  }
+
+
+  DeselectStartingPointMode() {
+    // Disable other options
+    this.disableOtherOptions("DeselectStartingPoint");
+
+    var json = JSON.parse(this.MetajsonTxt)
+    var points = json['Points']
+
+    if (points != null){
+      for (let i = 0; i < points.length; i++) {
+        if (points[i]["color"] == "green") {
+          json['Points'][i]["color"] = "black"
+        }
+      }
+    }
+
+    this.MetaDataText.nativeElement.value = JSON.stringify(json);
+    this.SendMetaData()
+  }
+
+  DisableDeselectStartingPointMode() {
+    this.CurrentClicked = "";
+  }
+
+
+  AddPointsMode() {
+    this.disappearContext();
+    if (this.CurrentClicked != "AddPoint") {
+      // Disable other options
+      this.disableOtherOptions("AddPoint");
+
+      // Hide Solution
+      this.hide_solution_path()
+      
+      this.OptionSelected(4, true)
+    }
+    else {
+      this.DisableAddPointsMode()
+    }
+  }
+
+  DisableAddPointsMode() {
+    this.OptionSelected(4, false)
+    this.CurrentClicked ="";
+  }
+
+
+  AddConnectionsMode() {
+    this.disappearContext();
+    if (this.CurrentClicked != "AddConnection") {
+      // Disable other options
+      this.disableOtherOptions("AddConnection");
+
+      // Hide Solution
+      this.hide_solution_path()
+      this.find_path_status = false
+
+      this.OptionSelected(5, true)
+    }
+    else {
+      this.DisableAddConnectionsMode()
+    }
+  }
+
+  DisableAddConnectionsMode() {
+    this.OptionSelected(5, false)
+
+    this.add_connections_mode_stage1 = false
+
+    // Empty red points
+    for (let i = 0; i < this.temp_points_list.length; i++) {
+      this.fabric_canvas.remove(this.temp_points_list[i])
+    }
+    this.temp_points_list = []
+
+    this.CurrentClicked = "";
+  }
+
+
+  RemovePointsMode() {
+    this.disappearContext();
+    if (this.CurrentClicked != "RemovePoint") {
+      // Disable other options
+      this.disableOtherOptions("RemovePoint");
+
+      // Hide Solution
+      this.hide_solution_path()
+      this.find_path_status = false
+
+      this.OptionSelected(6, true)
+    }
+    else {
+      this.DisableRemovePointsMode()
+    }
+  }
+
+  DisableRemovePointsMode() {
+    this.OptionSelected(6, false)
+    this.CurrentClicked = "";
+  }
+
+
+  RemoveConnectionsMode() {
+    this.disappearContext();
+    if (this.CurrentClicked != "RemoveConnection") {
+      // Disable other options
+      this.disableOtherOptions("RemoveConnection");
+
+      // Hide Solution
+      this.hide_solution_path()
+      this.find_path_status = false
+
+      this.OptionSelected(7, true)
+    }
+    else {
+      this.DisableAddConnectionsMode()
+    }
+  }
+
+  DisableRemoveConnectionsMode() {
+    this.OptionSelected(7, false)
+
+    this.remove_connections_mode_stage1 = false
+
+    // Empty red points
+    for (let i = 0; i < this.temp_points_list.length; i++) {
+      this.fabric_canvas.remove(this.temp_points_list[i])
+    }
+    this.temp_points_list = []
+
+    this.CurrentClicked = "";
+  }
+  
+    
   ShowMetaData(){
     this.disappearContext();
     if(this.CurrentClicked != "Metadata") {
@@ -1170,7 +1215,101 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.CurrentClicked = "";
     this.metaData.nativeElement.style.display = "none";
   }
+  
+  
+  SaveMetadata(){
+    this.disappearContext()
+    //Disable other options
+    this.disableOtherOptions("ALL");
 
+    // Reset All Colors
+    var json = JSON.parse(this.MetajsonTxt);
+    if (json['Points'] != null) {
+      for (let i = 0; i < json['Points'].length; i++) {
+        json['Points'][i]["color"] = "black"
+      }
+    }
+    if (json['Connections'] != null) {
+      for (let i = 0; i < json['Connections'].length; i++) {
+        json['Connections'][i]["color"] = "black"
+      }
+    }
+    if (json['Arrows'] != null) {
+      delete json["Arrows"]
+    }
+
+    var jsonParams = JSON.parse('{}')
+    jsonParams['url'] = this.currentImagePath
+    jsonParams['metadata'] = JSON.stringify(json)
+
+    console.log("Sent Json:", jsonParams)
+
+    this.metadataService.saveMetadataInFirebase(jsonParams).subscribe((data: any)=>{
+      console.log("Metadata URL:", data);
+
+      this.imagesService.updateData("Requesting Server updated data")
+    })
+  }
+  
+
+  ClearAnnotations(deleteMetadata:boolean = true){
+    this.points_counter = 0;
+    this.connections_counter = 0;
+
+    this.tooltips_list.forEach(tooltip => {
+      this.fabric_canvas.remove(tooltip);
+    });
+
+    this.points_list.forEach(point => {
+      this.fabric_canvas.remove(point);
+    });
+
+    this.connections_list.forEach(connection => {
+      this.fabric_canvas.remove(connection);
+    });
+
+    this.temp_points_list.forEach(temp_point => {
+      this.fabric_canvas.remove(temp_point);
+    });
+
+    this.arrows_list.forEach(arrow => {
+      this.fabric_canvas.remove(arrow);
+    });
+
+    this.points_list = []
+    this.connections_list = []
+    this.temp_points_list = []
+
+    this.tooltips_list = []
+    this.arrows_list = []
+
+    let LastMetadata = this.MetaDataText.nativeElement.value;
+
+    this.disappearContext()
+
+    this.fabric_canvas.clear();
+    this.fabric_canvas.setBackgroundImage(this.currentImagePath, this.fabric_canvas.renderAll.bind(this.fabric_canvas), {
+      backgroundImageOpacity: 1,      
+    });
+
+    try{
+      JSON.parse(LastMetadata);
+      this.MetaDataText.nativeElement.value = LastMetadata;
+    }
+    catch{
+      alert("Metadata incorrect JSON format");
+    }
+    
+    if (deleteMetadata) {
+      this.MetajsonTxt = "{}";
+      //Disable other options
+      this.disableOtherOptions("ALL");
+    }
+  }
+  // Buttons Implementation - END
+
+
+  // Utill Functions - START
   @ViewChild('MetaDataText') MetaDataText;
   MetajsonTxt: string = "{}"
 
@@ -1387,116 +1526,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     });
   }
 
-  SaveMetadata(){
-    this.disappearContext()
-    //Disable other options
-    this.disableOtherOptions("ALL");
-
-    // Reset All Colors
-    var json = JSON.parse(this.MetajsonTxt);
-    if (json['Points'] != null) {
-      for (let i = 0; i < json['Points'].length; i++) {
-        json['Points'][i]["color"] = "black"
-      }
-    }
-    if (json['Connections'] != null) {
-      for (let i = 0; i < json['Connections'].length; i++) {
-        json['Connections'][i]["color"] = "black"
-      }
-    }
-    if (json['Arrows'] != null) {
-      delete json["Arrows"]
-    }
-
-    var jsonParams = JSON.parse('{}')
-    jsonParams['url'] = this.currentImagePath
-    jsonParams['metadata'] = JSON.stringify(json)
-
-    console.log("Sent Json:", jsonParams)
-
-    this.metadataService.saveMetadataInFirebase(jsonParams).subscribe((data: any)=>{
-      console.log("Metadata URL:", data);
-
-      this.imagesService.updateData("Requesting Server updated data")
-    })
-  }
-
-  AddPointsMode() {
-    this.disappearContext();
-    if (this.CurrentClicked != "AddPoint") {
-      // Disable other options
-      this.disableOtherOptions("AddPoint");
-
-      // Hide Solution
-      this.hide_solution_path()
-      
-      this.OptionSelected(4, true)
-    }
-    else {
-      this.DisableAddPointsMode()
-    }
-  }
-
-  DisableAddPointsMode() {
-    this.OptionSelected(4, false)
-    this.CurrentClicked ="";
-  }
-
-  ClearAnnotations(deleteMetadata:boolean = true){
-    this.points_counter = 0;
-    this.connections_counter = 0;
-
-    this.tooltips_list.forEach(tooltip => {
-      this.fabric_canvas.remove(tooltip);
-    });
-
-    this.points_list.forEach(point => {
-      this.fabric_canvas.remove(point);
-    });
-
-    this.connections_list.forEach(connection => {
-      this.fabric_canvas.remove(connection);
-    });
-
-    this.temp_points_list.forEach(temp_point => {
-      this.fabric_canvas.remove(temp_point);
-    });
-
-    this.arrows_list.forEach(arrow => {
-      this.fabric_canvas.remove(arrow);
-    });
-
-    this.points_list = []
-    this.connections_list = []
-    this.temp_points_list = []
-
-    this.tooltips_list = []
-    this.arrows_list = []
-
-    let LastMetadata = this.MetaDataText.nativeElement.value;
-
-    this.disappearContext()
-
-    this.fabric_canvas.clear();
-    this.fabric_canvas.setBackgroundImage(this.currentImagePath, this.fabric_canvas.renderAll.bind(this.fabric_canvas), {
-      backgroundImageOpacity: 1,      
-    });
-
-    try{
-      JSON.parse(LastMetadata);
-      this.MetaDataText.nativeElement.value = LastMetadata;
-    }
-    catch{
-      alert("Metadata incorrect JSON format");
-    }
-    
-    if (deleteMetadata) {
-      this.MetajsonTxt = "{}";
-      //Disable other options
-      this.disableOtherOptions("ALL");
-    }
-  }
-
   selected_point = 0
 
   UpdatePointProductsList() {
@@ -1577,75 +1606,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     });
     return stringArray
   }
-
-  DeselectStartingPointMode() {
-    // Disable other options
-    this.disableOtherOptions("DeselectStartingPoint");
-
-    var json = JSON.parse(this.MetajsonTxt)
-    var points = json['Points']
-
-    if (points != null){
-      for (let i = 0; i < points.length; i++) {
-        if (points[i]["color"] == "green") {
-          json['Points'][i]["color"] = "black"
-        }
-      }
-    }
-
-    this.MetaDataText.nativeElement.value = JSON.stringify(json);
-    this.SendMetaData()
-  }
-
-  DisableDeselectStartingPointMode() {
-    this.CurrentClicked = "";
-  }
-  // Buttons Implementation - END
-
-
-  // Change buttons colors - START
-  @ViewChild('Option1') Option1;
-  @ViewChild('Option2') Option2;
-  @ViewChild('Option3') Option3;
-  @ViewChild('Option4') Option4;
-  @ViewChild('Option5') Option5;
-  @ViewChild('Option6') Option6;
-  @ViewChild('Option7') Option7;
-  @ViewChild('Option8') Option8;
-
-  OptionSelected(option_num, status) {
-    var color_value = 'white'
-    if (status == true) {
-      color_value = 'green'
-    }
-
-    if (option_num == 1) {
-      this.Option1.nativeElement.style.color = color_value
-    }
-    if (option_num == 2) {
-      this.Option2.nativeElement.style.color = color_value
-    }
-    if (option_num == 3) {
-      this.Option3.nativeElement.style.color = color_value
-    }
-    if (option_num == 4) {
-      this.Option4.nativeElement.style.color = color_value
-    }
-    if (option_num == 5) {
-      this.Option5.nativeElement.style.color = color_value
-    }
-    if (option_num == 6) {
-      this.Option6.nativeElement.style.color = color_value
-    }
-    if (option_num == 7) {
-      this.Option7.nativeElement.style.color = color_value
-    }
-    if (option_num == 8) {
-      this.Option8.nativeElement.style.color = color_value
-    }
-  }
-  // Change buttons colors - END
-
 
   CheckPermission() {
     return !this.ADMIN_PERMISSIONS
@@ -1751,4 +1711,49 @@ export class ImageCanvasEditingComponent implements OnInit {
       }
     })
   }
+  // Utill Functions - END
+
+  
+  // Change buttons colors - START
+  @ViewChild('Option1') Option1;
+  @ViewChild('Option2') Option2;
+  @ViewChild('Option3') Option3;
+  @ViewChild('Option4') Option4;
+  @ViewChild('Option5') Option5;
+  @ViewChild('Option6') Option6;
+  @ViewChild('Option7') Option7;
+  @ViewChild('Option8') Option8;
+
+  OptionSelected(option_num, status) {
+    var color_value = 'white'
+    if (status == true) {
+      color_value = 'green'
+    }
+
+    if (option_num == 1) {
+      this.Option1.nativeElement.style.color = color_value
+    }
+    if (option_num == 2) {
+      this.Option2.nativeElement.style.color = color_value
+    }
+    if (option_num == 3) {
+      this.Option3.nativeElement.style.color = color_value
+    }
+    if (option_num == 4) {
+      this.Option4.nativeElement.style.color = color_value
+    }
+    if (option_num == 5) {
+      this.Option5.nativeElement.style.color = color_value
+    }
+    if (option_num == 6) {
+      this.Option6.nativeElement.style.color = color_value
+    }
+    if (option_num == 7) {
+      this.Option7.nativeElement.style.color = color_value
+    }
+    if (option_num == 8) {
+      this.Option8.nativeElement.style.color = color_value
+    }
+  }
+  // Change buttons colors - END
 }

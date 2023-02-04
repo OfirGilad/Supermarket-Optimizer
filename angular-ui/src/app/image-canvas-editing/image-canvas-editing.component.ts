@@ -429,7 +429,7 @@ export class ImageCanvasEditingComponent implements OnInit {
         else {
           this.SendMetaData() 
         }
-        this.CurrentClicked = "";
+        // this.CurrentClicked = "";
       } 
     }
 
@@ -452,8 +452,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
 
     else if (this.CurrentClicked == "Metadata"){
-      // this.OptionSelected(8, true)
-      
       if (this.metaData.nativeElement.style.display != "block") {
         this.metaData.nativeElement.style.display = "block";
       }
@@ -491,8 +489,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     }
 
     else if (this.CurrentClicked == "AddPoint"){
-      //this.OptionSelected(4, true)
-
       this.point_x = e.clientX - offset.left
       this.point_y = e.clientY - offset.top
 
@@ -872,7 +868,6 @@ export class ImageCanvasEditingComponent implements OnInit {
       var selected_y = this.point4_data['y']
       this.color_point(selected_x, selected_y, 'yellow')
 
-      //
       this.selected_point = this.point4_index
       this.selectedProducts['products'] = this.point4_data['products']
 
@@ -987,7 +982,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.hide_solution_path()
       this.find_path_status = false
 
-      //this.OptionSelected(1, true)
+      this.OptionSelected(1, true)
       this.OnClick("NONE")
     }
     else {
@@ -996,7 +991,7 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
 
   DisableEditPositionsMode() {
-    //this.OptionSelected(1, false)
+    this.OptionSelected(1, false)
     this.fabric_canvas.discardActiveObject().renderAll();
     
     var json = JSON.parse(this.MetajsonTxt);
@@ -1030,19 +1025,16 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.hide_solution_path()
       this.find_path_status = false
 
-      //this.OptionSelected(5, true)
+      this.OptionSelected(5, true)
     }
     else {
-      //this.OptionSelected(5, false)
-
       this.DisableAddConnectionsMode()
-      //this.ClearAnnotations(false)
     }
   }
 
 
   DisableAddConnectionsMode() {
-    //this.OptionSelected(5, false)
+    this.OptionSelected(5, false)
 
     this.add_connections_mode_stage1 = false
 
@@ -1061,15 +1053,15 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable other options
       this.disableOtherOptions("SelectStartingPoint");
 
-      //this.OptionSelected(3, true)
+      this.OptionSelected(3, true)
     }
     else {
-      //this.OptionSelected(3, false)
       this.DisableSelectStartingPointMode()
     }
   }
 
   DisableSelectStartingPointMode() {
+    this.OptionSelected(3, false)
     this.CurrentClicked = "";
   }
 
@@ -1083,17 +1075,15 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.hide_solution_path()
       this.find_path_status = false
 
-      //this.OptionSelected(7, true)
+      this.OptionSelected(7, true)
     }
     else {
-      //this.OptionSelected(7, false)
-
       this.DisableAddConnectionsMode()
     }
   }
 
   DisableRemoveConnectionsMode() {
-    //this.OptionSelected(7, false)
+    this.OptionSelected(7, false)
 
     this.remove_connections_mode_stage1 = false
 
@@ -1116,16 +1106,15 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.hide_solution_path()
       this.find_path_status = false
 
-      //this.OptionSelected(6, true)
+      this.OptionSelected(6, true)
     }
     else {
-      //this.OptionSelected(6, false)
-
       this.DisableRemovePointsMode()
     }
   }
 
   DisableRemovePointsMode() {
+    this.OptionSelected(6, false)
     this.CurrentClicked = "";
   }
 
@@ -1139,17 +1128,15 @@ export class ImageCanvasEditingComponent implements OnInit {
       this.hide_solution_path()
       this.find_path_status = false
 
-      //this.OptionSelected(2, true)
+      this.OptionSelected(2, true)
     }
     else {
-      //this.OptionSelected(2, false)
-
       this.DisablePointProductsUpdateMode()
     }
   }
 
   DisablePointProductsUpdateMode() {
-    //this.OptionSelected(2, false)
+    this.OptionSelected(2, false)
 
     this.points_products_update_mode_stage1 = false
 
@@ -1171,26 +1158,15 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Disable other options
       this.disableOtherOptions("Metadata");
 
-      // // Disable Edit Mode
-      // this.edit_in_progress = false
-      // this.DisableEditPositionsMode()
-      // this.product_selection_in_progress = false
-      // this.DisablePointProductsUpdateMode()
-      // this.add_in_progress = false
-      // this.DisableAddConnectionsMode()
-      // this.remove_connection_in_progress = false
-      // this.DisableRemoveConnectionsMode()
-
-      //this.OptionSelected(8, true)
+      this.OptionSelected(8, true)
     }
     else {
-      //this.OptionSelected(8, false)
-
       this.DisableShowMetaData()
     }
   }
 
   DisableShowMetaData() {
+    this.OptionSelected(8, false)
     this.CurrentClicked = "";
     this.metaData.nativeElement.style.display = "none";
   }
@@ -1454,16 +1430,15 @@ export class ImageCanvasEditingComponent implements OnInit {
       // Hide Solution
       this.hide_solution_path()
       
-      //this.OptionSelected(4, true)
+      this.OptionSelected(4, true)
     }
     else {
-      //this.OptionSelected(4, false)
-      
       this.DisableAddPointsMode()
     }
   }
 
   DisableAddPointsMode() {
+    this.OptionSelected(4, false)
     this.CurrentClicked ="";
   }
 
@@ -1498,28 +1473,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.tooltips_list = []
     this.arrows_list = []
 
-    // Disable Edit Mode
-    // if (deleteMetadata == true) {
-      // this.edit_in_progress = false
-      // this.edit_positions_mode_stage1 = false
-
-      // this.product_selection_in_progress = false
-      // this.points_products_update_mode_stage1 = false
-
-      // this.add_in_progress = false
-      // this.add_connections_mode_stage1 = false
-
-      // this.remove_connection_in_progress = false
-      // this.remove_connections_mode_stage1 = false
-      
-      // this.productSelectionInput.nativeElement.style.display = "none";
-    //}
-
     let LastMetadata = this.MetaDataText.nativeElement.value;
-    
-    //Disable other options
-    //this.disableOtherOptions("ALL");
-    //this.CurrentClicked = ""
 
     this.disappearContext()
 
@@ -1574,7 +1528,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.MetaDataText.nativeElement.value = JSON.stringify(json);
     this.SendMetaData()
     this.productSelectionInput.nativeElement.style.display = "none";
-    //this.OnClick("NONE")
   }
 
   updateCheckedProduct(product, event) {
@@ -1626,6 +1579,9 @@ export class ImageCanvasEditingComponent implements OnInit {
   }
 
   DeselectStartingPointMode() {
+    // Disable other options
+    this.disableOtherOptions("DeselectStartingPoint");
+
     var json = JSON.parse(this.MetajsonTxt)
     var points = json['Points']
 
@@ -1644,8 +1600,8 @@ export class ImageCanvasEditingComponent implements OnInit {
   DisableDeselectStartingPointMode() {
     this.CurrentClicked = "";
   }
-
   // Buttons Implementation - END
+
 
   // Change buttons colors - START
   @ViewChild('Option1') Option1;
@@ -1657,37 +1613,38 @@ export class ImageCanvasEditingComponent implements OnInit {
   @ViewChild('Option7') Option7;
   @ViewChild('Option8') Option8;
 
-  // OptionSelected(option_num, status) {
-  //   var color_value = 'white'
-  //   if (status == true) {
-  //     color_value = 'green'
-  //   }
+  OptionSelected(option_num, status) {
+    var color_value = 'white'
+    if (status == true) {
+      color_value = 'green'
+    }
 
-  //   if (option_num == 1) {
-  //     this.Option1.nativeElement.style.color = color_value
-  //   }
-  //   if (option_num == 2) {
-  //     this.Option2.nativeElement.style.color = color_value
-  //   }
-  //   if (option_num == 3) {
-  //     this.Option3.nativeElement.style.color = color_value
-  //   }
-  //   if (option_num == 4) {
-  //     this.Option4.nativeElement.style.color = color_value
-  //   }
-  //   if (option_num == 5) {
-  //     this.Option5.nativeElement.style.color = color_value
-  //   }
-  //   if (option_num == 6) {
-  //     this.Option6.nativeElement.style.color = color_value
-  //   }
-  //   if (option_num == 7) {
-  //     this.Option7.nativeElement.style.color = color_value
-  //   }
-  //   if (option_num == 8) {
-  //     this.Option8.nativeElement.style.color = color_value
-  //   }
-  // }
+    if (option_num == 1) {
+      this.Option1.nativeElement.style.color = color_value
+    }
+    if (option_num == 2) {
+      this.Option2.nativeElement.style.color = color_value
+    }
+    if (option_num == 3) {
+      this.Option3.nativeElement.style.color = color_value
+    }
+    if (option_num == 4) {
+      this.Option4.nativeElement.style.color = color_value
+    }
+    if (option_num == 5) {
+      this.Option5.nativeElement.style.color = color_value
+    }
+    if (option_num == 6) {
+      this.Option6.nativeElement.style.color = color_value
+    }
+    if (option_num == 7) {
+      this.Option7.nativeElement.style.color = color_value
+    }
+    if (option_num == 8) {
+      this.Option8.nativeElement.style.color = color_value
+    }
+  }
+  // Change buttons colors - END
 
 
   CheckPermission() {
@@ -1758,7 +1715,6 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.MetaDataText.nativeElement.value = JSON.stringify(json)
     this.SendMetaData()
   }
-
 
   // Update line + tooltip according to current point location
   updateOnPointsMoving(o) {

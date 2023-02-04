@@ -1,2 +1,0 @@
-tesseract setup file:
-https://github.com/UB-Mannheim/tesseract/wiki

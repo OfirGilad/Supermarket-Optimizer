@@ -175,14 +175,33 @@ export class ImageCanvasEditingComponent implements OnInit {
 
     // Product got added to the list
     this.productsListService.productAddedEvent.subscribe((updateProductsListJSON: JSON) => {
-      this.listOfProducts = updateProductsListJSON['products']
+      // Copy by value to prevent direct referencing
+      this.listOfProducts = []
+      this.productIndex = 0
+
+      for (let i = 0; i < updateProductsListJSON['products'].length; i++) {
+        var product = updateProductsListJSON['products'][i]
+          this.listOfProducts.push({name: product['name'], value: i, checked: product['checked'], disabled: product['disabled']});
+        this.productIndex++;
+      }
+      //console.log(this.listOfProducts);
     })
     
     // Product got removed from the list
     this.productsListService.productRemovedEvent.subscribe((updateProductsListJSON: JSON) => {
-      this.listOfProducts = updateProductsListJSON['products']
+      // Copy by value to prevent direct referencing
+      this.listOfProducts = []
+      this.productIndex = 0
+
+      for (let i = 0; i < updateProductsListJSON['products'].length; i++) {
+        var product = updateProductsListJSON['products'][i]
+          this.listOfProducts.push({name: product['name'], value: i, checked: product['checked'], disabled: product['disabled']});
+        this.productIndex++;
+      }
+      //console.log(this.listOfProducts);
+
       var productToRemove = updateProductsListJSON['removedName']
-      console.log(productToRemove);
+      //console.log(productToRemove);
       
 
       var json = JSON.parse(this.MetajsonTxt)
@@ -470,7 +489,7 @@ export class ImageCanvasEditingComponent implements OnInit {
         originY: "center",
         hoverCursor: "auto"
       });
-      console.log(point)
+      //console.log(point)
       this.fabric_canvas.add(point);
       this.points_list.push(point);
 
@@ -502,7 +521,7 @@ export class ImageCanvasEditingComponent implements OnInit {
 
       this.tooltips_list.push(tooltip)
 
-      console.log(this.tooltips_list)
+      //console.log(this.tooltips_list)
     }
 
     else if (this.CurrentClicked == "AddConnection"){
@@ -721,7 +740,7 @@ export class ImageCanvasEditingComponent implements OnInit {
                 originY: "center"
               }
             );
-            console.log(connection)
+            //console.log(connection)
             this.fabric_canvas.add(connection);
             this.connections_list.push(connection);
 
@@ -763,7 +782,7 @@ export class ImageCanvasEditingComponent implements OnInit {
             }
 
             var connection = this.connections_list[connection_to_remove]
-            console.log(connection)
+            //console.log(connection)
             this.fabric_canvas.remove(connection);
 
             var updatedConnections = this.connections_list
@@ -1549,7 +1568,7 @@ export class ImageCanvasEditingComponent implements OnInit {
       if (json["Points"][i]['color'] != "green") {
         json["Points"][i]['color'] = "black"
         
-        console.log(this.globalSelectedProduct)
+        //console.log(this.globalSelectedProduct)
 
         for (let j = 0; j < json["Points"][i]['products'].length; j++) {
           if (this.globalSelectedProduct['products'].indexOf(json["Points"][i]['products'][j]) != -1) {

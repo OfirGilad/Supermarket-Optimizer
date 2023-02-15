@@ -55,7 +55,7 @@ export class ProductsListComponent implements OnInit {
       //this.MetaDataText.nativeElement.value = newImageJSON['metadata'];
       this.ProductsjsonTxt = newImageJSON['products'];
       this.currentImagePath = newImageJSON['url']
-      console.log(this.ProductsjsonTxt)
+      //console.log(this.ProductsjsonTxt)
 
       var json = JSON.parse(this.ProductsjsonTxt);
 
@@ -103,7 +103,7 @@ export class ProductsListComponent implements OnInit {
 
     this.imageCanvasEditingService.newSelectedProductEvent.subscribe((newSelectedProductsJSON: JSON) => {
       for (let i = 0; i < this.listOfProducts.length; i++) {
-        console.log(newSelectedProductsJSON);
+        //console.log(newSelectedProductsJSON);
         
         if (newSelectedProductsJSON['products'].indexOf(this.listOfProducts[i]['name']) != -1) {
           this.listOfProducts[i]['checked'] = true

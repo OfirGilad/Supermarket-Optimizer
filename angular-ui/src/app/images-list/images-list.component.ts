@@ -43,6 +43,7 @@ export class ImagesListComponent implements OnInit {
         this.listOfImages.push(new ImageLink(data[i]["name"], data[i]["metadata"], data[i]["url"], data[i]["products"]))
       }
       console.log("Received Collection from Firebase")
+      alert("Information was loaded successfully from the server")
 
       // Display Upload New Market button
       if (this.ADMIN_PERMISSIONS) {

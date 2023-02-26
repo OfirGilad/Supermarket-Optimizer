@@ -65,7 +65,7 @@ export class ImageCanvasEditingComponent implements OnInit {
     this.fabric_canvas.clear();
     this.fabric_canvas.selection = false; // disable group selection
 
-    // Get notify on image recived
+    // Get notify on image recieved
     this.imageCanvasEditingService.imagePathChangedEvent.subscribe((newImageJSON: JSON) => {
       const img = new Image();
       img.src = newImageJSON['url'];

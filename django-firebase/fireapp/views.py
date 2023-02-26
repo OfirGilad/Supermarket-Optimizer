@@ -275,12 +275,14 @@ def find_path(data):
     print("Required vertices list:", required_vertices)
     visited_vertices = [start_vertex]
     paths = []
+    last_vertex = start_vertex
     for i in range(len(required_vertices) - 1):
         if required_vertices[i + 1] in visited_vertices:
             print("Vertex: " + str(required_vertices[i + 1]) + " was already visited")
             continue
-        min_path = Dijkstra(data, required_vertices[i], required_vertices[i + 1])[1]
+        min_path = Dijkstra(data, last_vertex, required_vertices[i + 1])[1]
         paths.append(min_path)
+        last_vertex = required_vertices[i + 1]
 
         # Update visited vertices
         visited_vertices = list(set(visited_vertices + min_path))
